@@ -1,0 +1,115 @@
+<title>Session 3 — Where am I?</title>
+<style>
+:root{--bg:#0E1420;--bg2:#141D2C;--panel:#18212F;--ink:#EAEEF4;--soft:#B4BFD0;--dim:#8493A8;--faint:#5A6577;
+--line:rgba(150,170,205,.14);--accent:#4FA8B8;--amber:#E3A63A;--serif:"Iowan Old Style",Palatino,Georgia,serif;
+--sans:-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.7;font-size:17px}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px}
+p{color:var(--soft);margin:0 0 16px}b{color:var(--ink)}em{color:var(--ink);font-style:italic}
+.kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--serif);font-size:clamp(34px,6vw,54px);line-height:1.05;margin:14px 0 0;color:#fff;letter-spacing:-.02em}
+h2{font-family:var(--serif);font-size:27px;margin:0 0 8px;color:#fff}
+.dek{font-size:19px;color:var(--soft);margin-top:18px;max-width:60ch}
+section{padding:44px 0;border-top:1px solid var(--line)}
+.eye{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.why{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 20px;margin:16px 0}
+.why h3{margin:0 0 6px;font-size:13px;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}.why p{margin:0;font-size:15px;color:var(--soft)}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-top:14px}
+.mini{font-family:var(--mono);font-size:12px;color:var(--faint);margin-top:10px}
+.vec{display:inline-flex;gap:3px;vertical-align:middle}
+.vn{font-family:var(--mono);font-size:12px;padding:3px 6px;border-radius:5px;min-width:44px;text-align:center}
+.vec.te .vn{background:rgba(150,170,205,.08);border:1px solid var(--line);color:var(--soft)}
+.vec.pos .vn{background:color-mix(in srgb,var(--amber) 12%,transparent);border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);color:var(--amber)}
+.vec.inp .vn{background:color-mix(in srgb,var(--accent) 14%,transparent);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);color:#dff}
+.op{color:var(--faint);font-family:var(--mono);margin:0 8px}
+.blindrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0;font-family:var(--mono);font-size:13px}
+.pin{font-family:var(--mono);font-size:12px;color:var(--dim);width:72px}
+.seqwrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+@media(max-width:720px){.seqwrap{grid-template-columns:1fr}}
+.seqcol{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:16px}
+.sqh{font-family:var(--mono);font-size:13px;color:#fff;margin-bottom:10px}
+.sq{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:7px 0;border-top:1px dashed var(--line);font-size:13px}
+.sq:first-of-type{border-top:none}.qw{font-family:var(--mono);font-size:13px;color:var(--ink);width:74px}.qw small{display:block;color:var(--faint);font-size:10.5px}
+/* pipeline map */
+.map{background:linear-gradient(180deg,#0c1220,#0a0f1a);border:1px solid var(--line);border-radius:16px;padding:22px 20px;margin-top:16px;overflow-x:auto}
+.flow{display:flex;align-items:stretch;gap:0;min-width:720px}
+.stg{flex:1;text-align:center;padding:0 6px}
+.box{border:1px solid var(--line);border-radius:10px;padding:12px 8px;background:var(--panel);min-height:66px;display:flex;flex-direction:column;justify-content:center}
+.box .bt{font-size:13.5px;color:var(--ink);font-weight:600}.box .bs{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:3px}
+.box.fixed{border-color:color-mix(in srgb,var(--amber) 45%,transparent);background:color-mix(in srgb,var(--amber) 8%,var(--panel))}
+.box.learn{border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+.sess{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-top:7px}
+.arrw{align-self:center;color:var(--faint);font-size:18px;padding:0 2px}
+.maplg{display:flex;gap:18px;flex-wrap:wrap;margin-top:16px;font-family:var(--mono);font-size:11.5px;color:var(--soft)}
+.maplg span b{padding:1px 7px;border-radius:20px;font-size:10px}
+.aha{font-family:var(--serif);font-size:22px;line-height:1.4;color:#fff;border-left:3px solid var(--accent);padding-left:18px;margin:8px 0}
+.next{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:10px}
+</style>
+<div class="wrap">
+<nav style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;padding:14px 0;border-bottom:1px solid rgba(150,170,205,.16);margin-bottom:4px"><a href="index.html" style="color:#4FA8B8;text-decoration:none;font-weight:700">🔤 The Lab</a><span style="color:#5A6577">· Session 3</span><span style="margin-left:auto;display:flex;gap:16px"><a href="03-positional.html" style="color:#fff;font-weight:600;text-decoration:none">Where am I?</a></span></nav>
+<header style="padding:64px 0 8px">
+  <div class="kick">Build-an-LLM · Lab · Session 3 of 10</div>
+  <h1>Where am I?</h1>
+  <p class="dek">Session 2 gave every token a vector for <em>what it means</em>. But there's a hole: the same token gets the <b>same vector no matter where it sits</b> — and attention (next session) treats the input as an unordered <em>bag</em>. So the model literally can't tell <span class="mono">dog bites man</span> from <span class="mono">man bites dog</span>. Position has to be <b>injected</b>. Real 4-D vectors below.</p>
+</header>
+
+<section>
+  <div class="eye">The hole</div>
+  <h2>The token vector is position-blind</h2>
+  <p>Look up <span class="mono">the</span> and you get one fixed vector — the <em>same</em> whether it's the 1st word or the 4th (Raschka Fig 2.17). The embedding table has no idea about order:</p>
+  <div class="card">
+    <div class="blindrow"><span class="pin">the @ pos 1</span><span class='vec te'><span class='vn'>+0.85</span><span class='vn'>-0.23</span><span class='vn'>+0.02</span><span class='vn'>+0.20</span></span><span class="op">same lookup</span></div>
+    <div class="blindrow"><span class="pin">the @ pos 4</span><span class='vec te'><span class='vn'>+0.85</span><span class='vn'>-0.23</span><span class='vn'>+0.02</span><span class='vn'>+0.20</span></span><span class="op">→ identical</span></div>
+  </div>
+  <div class="why"><h3>Why that breaks things</h3><p>Order carries meaning. If two positions produce the same vector, and attention ignores order too, then <span class="mono">dog bites man</span> and <span class="mono">man bites dog</span> are the <em>same input</em> to the model — a disaster.</p></div>
+</section>
+
+<section>
+  <div class="eye">The fix</div>
+  <h2>Add a second table: one vector per position</h2>
+  <p>Make a second embedding, indexed by <em>position</em> (0,1,2,…), and <b>add</b> it to the token vector. Now the same token at different positions comes out different:</p>
+  <div class="card">
+    <div class="blindrow"><span class="pin">the @ pos 1</span><span class='vec te'><span class='vn'>+0.85</span><span class='vn'>-0.23</span><span class='vn'>+0.02</span><span class='vn'>+0.20</span></span><span class="op">+</span><span class='vec pos'><span class='vn'>+0.52</span><span class='vn'>-0.21</span><span class='vn'>-0.37</span><span class='vn'>+0.54</span></span><span class="op">=</span><span class='vec inp'><span class='vn'>+1.37</span><span class='vn'>-0.44</span><span class='vn'>-0.35</span><span class='vn'>+0.74</span></span></div>
+    <div class="blindrow"><span class="pin">the @ pos 4</span><span class='vec te'><span class='vn'>+0.85</span><span class='vn'>-0.23</span><span class='vn'>+0.02</span><span class='vn'>+0.20</span></span><span class="op">+</span><span class='vec pos'><span class='vn'>+0.42</span><span class='vn'>-0.09</span><span class='vn'>+0.28</span><span class='vn'>-0.38</span></span><span class="op">=</span><span class='vec inp'><span class='vn'>+1.27</span><span class='vn'>-0.32</span><span class='vn'>+0.30</span><span class='vn'>-0.18</span></span></div>
+    <p class="mini"><span style="color:var(--soft)">token</span> + <span style="color:var(--amber)">position</span> = <span style="color:#dff">input vector</span> — the two <span class="mono">the</span>s now differ. This sum is what actually enters the model.</p>
+  </div>
+</section>
+
+<section>
+  <div class="eye">The payoff</div>
+  <h2>Now word order changes the input</h2>
+  <p>Same three tokens, two orders. The token set is identical — but adding positions makes the input tensors differ (watch: <span class="mono">bites</span> is at position 1 in both, so <em>its</em> row is the same; only <span class="mono">dog</span>/<span class="mono">man</span> swap):</p>
+  <div class="seqwrap"><div class='seqcol'><div class='sqh'>dog bites man</div><div class='sq'><span class='qw'>dog<small>pos 0</small></span><span class='vec te'><span class='vn'>+0.25</span><span class='vn'>-0.13</span><span class='vn'>-0.12</span><span class='vn'>-0.73</span></span><span class='op'>+</span><span class='vec pos'><span class='vn'>-0.02</span><span class='vn'>-0.73</span><span class='vn'>-0.20</span><span class='vn'>-1.14</span></span><span class='op'>=</span><span class='vec inp'><span class='vn'>+0.23</span><span class='vn'>-0.86</span><span class='vn'>-0.32</span><span class='vn'>-1.87</span></span></div><div class='sq'><span class='qw'>bites<small>pos 1</small></span><span class='vec te'><span class='vn'>+0.28</span><span class='vn'>+0.06</span><span class='vn'>+0.14</span><span class='vn'>-0.76</span></span><span class='op'>+</span><span class='vec pos'><span class='vn'>+0.52</span><span class='vn'>-0.21</span><span class='vn'>-0.37</span><span class='vn'>+0.54</span></span><span class='op'>=</span><span class='vec inp'><span class='vn'>+0.80</span><span class='vn'>-0.15</span><span class='vn'>-0.23</span><span class='vn'>-0.22</span></span></div><div class='sq'><span class='qw'>man<small>pos 2</small></span><span class='vec te'><span class='vn'>+0.83</span><span class='vn'>+0.08</span><span class='vn'>-0.19</span><span class='vn'>+1.01</span></span><span class='op'>+</span><span class='vec pos'><span class='vn'>-0.83</span><span class='vn'>+0.27</span><span class='vn'>-1.03</span><span class='vn'>-0.33</span></span><span class='op'>=</span><span class='vec inp'><span class='vn'>+0.00</span><span class='vn'>+0.35</span><span class='vn'>-1.22</span><span class='vn'>+0.68</span></span></div></div><div class='seqcol'><div class='sqh'>man bites dog</div><div class='sq'><span class='qw'>man<small>pos 0</small></span><span class='vec te'><span class='vn'>+0.83</span><span class='vn'>+0.08</span><span class='vn'>-0.19</span><span class='vn'>+1.01</span></span><span class='op'>+</span><span class='vec pos'><span class='vn'>-0.02</span><span class='vn'>-0.73</span><span class='vn'>-0.20</span><span class='vn'>-1.14</span></span><span class='op'>=</span><span class='vec inp'><span class='vn'>+0.81</span><span class='vn'>-0.65</span><span class='vn'>-0.39</span><span class='vn'>-0.13</span></span></div><div class='sq'><span class='qw'>bites<small>pos 1</small></span><span class='vec te'><span class='vn'>+0.28</span><span class='vn'>+0.06</span><span class='vn'>+0.14</span><span class='vn'>-0.76</span></span><span class='op'>+</span><span class='vec pos'><span class='vn'>+0.52</span><span class='vn'>-0.21</span><span class='vn'>-0.37</span><span class='vn'>+0.54</span></span><span class='op'>=</span><span class='vec inp'><span class='vn'>+0.80</span><span class='vn'>-0.15</span><span class='vn'>-0.23</span><span class='vn'>-0.22</span></span></div><div class='sq'><span class='qw'>dog<small>pos 2</small></span><span class='vec te'><span class='vn'>+0.25</span><span class='vn'>-0.13</span><span class='vn'>-0.12</span><span class='vn'>-0.73</span></span><span class='op'>+</span><span class='vec pos'><span class='vn'>-0.83</span><span class='vn'>+0.27</span><span class='vn'>-1.03</span><span class='vn'>-0.33</span></span><span class='op'>=</span><span class='vec inp'><span class='vn'>-0.58</span><span class='vn'>+0.14</span><span class='vn'>-1.15</span><span class='vn'>-1.06</span></span></div></div></div>
+  <div class="why"><h3>What GPT actually uses</h3><p>These position vectors are <b>learned</b> — GPT uses <em>absolute</em> positional embeddings, a trainable table optimized during training (not the fixed sine-waves of the original transformer). There's also a <em>relative</em> family (encode distance between tokens). Either way: a second embedding, added on, so the model can feel order.</p></div>
+</section>
+
+<section>
+  <div class="eye">The big picture — the whole input pipeline (Raschka ch2)</div>
+  <h2>Where Sessions 1–3 actually sit</h2>
+  <p>Everything so far is one chapter — turning raw text into the tensor the model eats. The seam: the tokenizer is <b>fixed and outside</b>; the embeddings are <b>learnable layers inside</b> (created random in ch2, trained in ch5).</p>
+  <div class="map"><div class="flow">
+    <div class="stg"><div class="box">raw text<div class="bs">"the dog…"</div></div></div>
+    <div class="arrw">→</div>
+    <div class="stg"><div class="box fixed"><div class="bt">tokenizer</div><div class="bs">split → IDs → BPE</div></div><div class="sess">Session 1 · §2.2–2.5</div></div>
+    <div class="arrw">→</div>
+    <div class="stg"><div class="box"><div class="bt">token IDs</div><div class="bs">464 · 9379 …</div></div><div class="sess">the seam</div></div>
+    <div class="arrw">→</div>
+    <div class="stg"><div class="box learn"><div class="bt">token emb <span style="color:var(--amber)">+ position emb</span></div><div class="bs">= input tensor</div></div><div class="sess">Sessions 2 &amp; 3 · §2.7–2.8</div></div>
+    <div class="arrw">→</div>
+    <div class="stg"><div class="box learn"><div class="bt">the model</div><div class="bs">attention → … → predict next</div></div><div class="sess">Sessions 4+ · ch3–5</div></div>
+  </div>
+  <div class="maplg">
+    <span><b style="background:color-mix(in srgb,var(--amber) 22%,transparent);color:var(--amber)">fixed</b> built by counting · frozen · outside the model</span>
+    <span><b style="background:color-mix(in srgb,var(--accent) 22%,transparent);color:#dff">learned</b> weights · random in ch2 · trained by next-token in ch5</span>
+  </div>
+  </div>
+  <p class="mini">(ch2 also builds the <b>sliding-window</b> (input → next-token) training pairs — §2.6 — the data that ch5 trains on.)</p>
+</section>
+
+<section>
+  <div class="eye">The one-line aha</div>
+  <p class="aha">A token vector says <em>what</em>; a position vector says <em>where</em>. Add them, and the model can finally tell order — because on their own, a bag of token vectors has none.</p>
+  <p class="next">Real code: <b>03-positional/pos.py</b> · Raschka <b>§2.8</b> (encoding word positions).<br>
+  Next → <b>Session 4 · Attention</b>: with what and where in hand, the vectors finally <em>read each other</em>.</p>
+</section>
+</div>
