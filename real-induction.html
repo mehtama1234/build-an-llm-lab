@@ -1,0 +1,113 @@
+<title>An attention head with an algorithm — induction heads</title>
+<style>
+:root{--bg:#0E1420;--bg2:#141D2C;--panel:#18212F;--ink:#EAEEF4;--soft:#B4BFD0;--dim:#8493A8;--faint:#5A6577;
+--line:rgba(150,170,205,.14);--accent:#4FA8B8;--amber:#E3A63A;--rose:#C6606A;
+--serif:"Iowan Old Style",Palatino,Georgia,serif;--sans:-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:17px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+p{color:var(--soft);margin:0 0 16px}b{color:var(--ink)}em{color:var(--ink);font-style:italic}
+.kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--serif);font-size:clamp(32px,6vw,50px);line-height:1.05;margin:14px 0 0;color:#fff;letter-spacing:-.02em}
+h2{font-family:var(--serif);font-size:27px;margin:0 0 8px;color:#fff}
+.dek{font-size:19px;color:var(--soft);margin-top:18px}
+section{padding:44px 0;border-top:1px solid var(--line)}
+.eye{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.claim{font-family:var(--serif);font-size:21px;color:#fff;line-height:1.35;margin:0 0 4px}
+.why{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 20px;margin:18px 0}
+.why h3{margin:0 0 6px;font-size:12.5px;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}.why p{margin:0;font-size:15.5px;color:var(--soft)}
+.mini{font-family:var(--mono);font-size:12px;color:var(--faint);margin-top:10px}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-top:14px}
+.chart{width:100%;height:auto;display:block;max-width:440px;margin:0 auto}
+.big{display:flex;gap:26px;flex-wrap:wrap;margin:14px 0}
+.stat{flex:1;min-width:150px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.stat .n{font-family:var(--serif);font-size:40px;line-height:1;color:#fff}
+.stat .l{font-family:var(--mono);font-size:12px;color:var(--dim);margin-top:6px}
+.stat.good .n{color:var(--accent)}.stat.bad .n{color:var(--rose)}
+.cstrip{display:flex;gap:2px;margin-top:12px}
+.cc{flex:1;height:26px;border-radius:3px}
+.hb{display:flex;align-items:center;gap:10px;margin:5px 0}
+.hbl{font-family:var(--mono);font-size:12px;color:var(--soft);width:74px;flex:0 0 auto}
+.hbw{flex:1;height:18px;background:rgba(150,170,205,.06);border-radius:5px;overflow:hidden}
+.hbf{height:100%;border-radius:5px}
+.hbv{font-family:var(--mono);font-size:12px;color:var(--dim);width:34px;text-align:right}
+.demo{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#0b111b;border:1px solid var(--line);border-radius:9px;padding:11px 14px;margin:8px 0;font-family:var(--mono);font-size:13px}
+.dq{color:var(--soft)}.da{color:var(--dim);white-space:nowrap}.da b{color:var(--accent)}.dp{color:var(--faint)}
+.aha{font-family:var(--serif);font-size:22px;line-height:1.42;color:#fff;border-left:3px solid var(--accent);padding-left:18px;margin:8px 0}
+.next{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:12px}
+ul.clean{list-style:none;padding:0;margin:16px 0}
+ul.clean li{position:relative;padding:10px 0 10px 26px;border-top:1px solid var(--line);color:var(--soft)}
+ul.clean li:before{content:"→";position:absolute;left:0;color:var(--accent);font-family:var(--mono)}ul.clean li b{color:#fff}
+.leg{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:12px;margin-top:10px;color:var(--dim)}
+.leg i{display:inline-block;width:14px;height:10px;border-radius:3px;vertical-align:middle;margin-right:6px}
+</style>
+<div class="wrap">
+<nav style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;padding:14px 0;border-bottom:1px solid rgba(150,170,205,.16);margin-bottom:4px"><a href="index.html" style="color:#4FA8B8;text-decoration:none;font-weight:700">🔤 The Lab</a><span style="color:#5A6577">· Real-model experiments · An attention head with an algorithm</span></nav>
+<header style="padding:64px 0 8px">
+  <div class="kick">Build-an-LLM · Lab · Real-model experiments · #2</div>
+  <h1>An attention head with an algorithm.</h1>
+  <p class="dek">We keep saying attention lets words "look at each other." But is a head ever doing anything we'd recognize as <em>clever</em> — or is it just fuzzy averaging? This experiment catches a single head in real GPT-2 running a crisp, nameable procedure: <b>copy what came next last time.</b></p>
+</header>
+
+<section>
+  <div class="eye">The specific clever thing</div>
+  <h2>Copying a pattern it has seen once</h2>
+  <p>Here's a concrete skill worth having: if you've just seen a pattern, be able to continue it. In "…the secret code is <b>Vpharnix</b> … the secret code is ___", the answer is <b>Vpharnix</b> — and the <em>only</em> way to know that is to have noticed it earlier in this very text. Nothing about GPT-2's fixed, trained weights knows that made-up word; the answer has to be pulled from the prompt itself.</p>
+  <p>To do that, a head has to run a precise little routine: at the second "…code is", look back to <b>what followed the first "code is"</b>, and copy it forward. That's not vague averaging — it's an algorithm you can state in one sentence and then go check for.</p>
+</section>
+
+<section>
+  <div class="eye">Experiment A — does it copy? (real GPT-2)</div>
+  <p class="claim">Feed it a random sequence, then repeat the sequence. The second copy is impossible to predict — <em>unless</em> the model copies from the first.</p>
+  <p>We make 24 random tokens (no meaning, no pattern to memorize) and paste the run twice. Then we check, at each position, whether the model's top guess for the next token is right:</p>
+  <div class="big">
+    <div class="stat bad"><div class="n">0%</div><div class="l">correct in the <b>1st</b> copy<br>(random — genuinely unpredictable)</div></div>
+    <div class="stat good"><div class="n">96%</div><div class="l">correct in the <b>2nd</b> copy<br>(now it can copy the first)</div></div>
+  </div>
+  <div class="card">
+    <div class="mini" style="margin:0 0 4px">every position, left→right · <span style="color:var(--rose)">red = wrong</span>, <span style="color:var(--accent)">blue = right</span> · the switch happens exactly where the repeat begins</div>
+    <div class="cstrip"><span class="cc" style="background:#C6606A" title="pos 1"></span><span class="cc" style="background:#C6606A" title="pos 2"></span><span class="cc" style="background:#C6606A" title="pos 3"></span><span class="cc" style="background:#C6606A" title="pos 4"></span><span class="cc" style="background:#C6606A" title="pos 5"></span><span class="cc" style="background:#C6606A" title="pos 6"></span><span class="cc" style="background:#C6606A" title="pos 7"></span><span class="cc" style="background:#C6606A" title="pos 8"></span><span class="cc" style="background:#C6606A" title="pos 9"></span><span class="cc" style="background:#C6606A" title="pos 10"></span><span class="cc" style="background:#C6606A" title="pos 11"></span><span class="cc" style="background:#C6606A" title="pos 12"></span><span class="cc" style="background:#C6606A" title="pos 13"></span><span class="cc" style="background:#C6606A" title="pos 14"></span><span class="cc" style="background:#C6606A" title="pos 15"></span><span class="cc" style="background:#C6606A" title="pos 16"></span><span class="cc" style="background:#C6606A" title="pos 17"></span><span class="cc" style="background:#C6606A" title="pos 18"></span><span class="cc" style="background:#C6606A" title="pos 19"></span><span class="cc" style="background:#C6606A" title="pos 20"></span><span class="cc" style="background:#C6606A" title="pos 21"></span><span class="cc" style="background:#C6606A" title="pos 22"></span><span class="cc" style="background:#C6606A" title="pos 23"></span><span class="cc" style="background:#C6606A" title="pos 24"></span><span class="cc" style="background:#4FA8B8" title="pos 25"></span><span class="cc" style="background:#4FA8B8" title="pos 26"></span><span class="cc" style="background:#4FA8B8" title="pos 27"></span><span class="cc" style="background:#4FA8B8" title="pos 28"></span><span class="cc" style="background:#4FA8B8" title="pos 29"></span><span class="cc" style="background:#4FA8B8" title="pos 30"></span><span class="cc" style="background:#4FA8B8" title="pos 31"></span><span class="cc" style="background:#4FA8B8" title="pos 32"></span><span class="cc" style="background:#4FA8B8" title="pos 33"></span><span class="cc" style="background:#4FA8B8" title="pos 34"></span><span class="cc" style="background:#4FA8B8" title="pos 35"></span><span class="cc" style="background:#4FA8B8" title="pos 36"></span><span class="cc" style="background:#4FA8B8" title="pos 37"></span><span class="cc" style="background:#4FA8B8" title="pos 38"></span><span class="cc" style="background:#4FA8B8" title="pos 39"></span><span class="cc" style="background:#4FA8B8" title="pos 40"></span><span class="cc" style="background:#4FA8B8" title="pos 41"></span><span class="cc" style="background:#4FA8B8" title="pos 42"></span><span class="cc" style="background:#4FA8B8" title="pos 43"></span><span class="cc" style="background:#4FA8B8" title="pos 44"></span><span class="cc" style="background:#4FA8B8" title="pos 45"></span><span class="cc" style="background:#4FA8B8" title="pos 46"></span></div>
+  </div>
+  <p class="mini">The model goes from hopeless to nearly perfect the instant the sequence starts repeating. It didn't learn these tokens — it learned <em>to copy</em>, and it's doing so live, from the prompt.</p>
+</section>
+
+<section>
+  <div class="eye">Experiment B — find the head doing it</div>
+  <p class="claim">Score all 144 heads by one thing: how much they look from a repeated token back to "whatever followed it last time." One head lights up.</p>
+  <p>GPT-2 small has 12 layers × 12 heads. For each, we measure exactly the induction move — attention from a second-copy position to the token right after its first appearance — and rank them:</p>
+  <div class="card"><div class="hb"><span class="hbl">head 5.5</span><div class="hbw"><div class="hbf" style="width:95%;background:var(--accent)"></div></div><span class="hbv">0.94</span></div><div class="hb"><span class="hbl">head 7.10</span><div class="hbw"><div class="hbf" style="width:92%;background:var(--faint)"></div></div><span class="hbv">0.91</span></div><div class="hb"><span class="hbl">head 5.1</span><div class="hbw"><div class="hbf" style="width:87%;background:var(--faint)"></div></div><span class="hbv">0.86</span></div><div class="hb"><span class="hbl">head 6.9</span><div class="hbw"><div class="hbf" style="width:85%;background:var(--faint)"></div></div><span class="hbv">0.84</span></div><div class="hb"><span class="hbl">head 7.2</span><div class="hbw"><div class="hbf" style="width:81%;background:var(--faint)"></div></div><span class="hbv">0.80</span></div><div class="hb"><span class="hbl">head 10.7</span><div class="hbw"><div class="hbf" style="width:64%;background:var(--faint)"></div></div><span class="hbv">0.63</span></div>
+    <div class="mini" style="margin-top:10px">head 5.5 puts <b>94%</b> of its attention on precisely the copy target. We didn't pick it — the scan found it.</div>
+  </div>
+  <p>And here is that head's attention on a short repeated sequence. Each row is a token <em>asking</em>; brightness shows where it <em>looks</em>. The bright <b>offset stripe</b> is the signature: every token in the second half reaches back to the position one step after its earlier twin — <span style="color:var(--amber)">outlined</span>:</p>
+  <div class="card"><svg viewBox="0 0 376 376" class="chart" role="img"><rect x="4" y="4" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="4" y="19" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="4" y="34" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="4" y="49" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="4" y="64" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="64" y="64" width="14" height="14" fill="rgba(79,168,184,0.046)"/><rect x="4" y="79" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="4" y="94" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="49" y="94" width="14" height="14" fill="rgba(79,168,184,0.071)"/><rect x="4" y="109" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="94" y="109" width="14" height="14" fill="rgba(79,168,184,0.169)"/><rect x="4" y="124" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="124" y="124" width="14" height="14" fill="rgba(79,168,184,0.179)"/><rect x="4" y="139" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="139" y="139" width="14" height="14" fill="rgba(79,168,184,0.102)"/><rect x="4" y="154" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="64" y="154" width="14" height="14" fill="rgba(79,168,184,0.043)"/><rect x="4" y="169" width="14" height="14" fill="rgba(79,168,184,1.000)"/><rect x="49" y="169" width="14" height="14" fill="rgba(79,168,184,0.032)"/><rect x="64" y="169" width="14" height="14" fill="rgba(79,168,184,0.046)"/><rect x="169" y="169" width="14" height="14" fill="rgba(79,168,184,0.056)"/><rect x="4" y="184" width="14" height="14" fill="rgba(79,168,184,0.042)"/><rect x="19" y="184" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="4" y="199" width="14" height="14" fill="rgba(79,168,184,0.188)"/><rect x="34" y="199" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="49" y="214" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="4" y="229" width="14" height="14" fill="rgba(79,168,184,0.034)"/><rect x="64" y="229" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="4" y="244" width="14" height="14" fill="rgba(79,168,184,0.048)"/><rect x="79" y="244" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="124" y="244" width="14" height="14" fill="rgba(79,168,184,0.043)"/><rect x="94" y="259" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="109" y="274" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="4" y="289" width="14" height="14" fill="rgba(79,168,184,0.042)"/><rect x="124" y="289" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="4" y="304" width="14" height="14" fill="rgba(79,168,184,0.157)"/><rect x="124" y="304" width="14" height="14" fill="rgba(79,168,184,0.109)"/><rect x="139" y="304" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="154" y="304" width="14" height="14" fill="rgba(79,168,184,0.039)"/><rect x="4" y="319" width="14" height="14" fill="rgba(79,168,184,0.067)"/><rect x="154" y="319" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="169" y="334" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><rect x="184" y="334" width="14" height="14" fill="rgba(79,168,184,0.032)"/><rect x="184" y="349" width="14" height="14" fill="rgba(79,168,184,1.000)" stroke="#E3A63A" stroke-width="1.2"/><text x="4" y="374" fill="#5A6577" font-size="10" font-family="monospace">rows = asking-position · columns = looked-at position · a repeated 12-token sequence</text></svg>
+    <div class="leg"><span><i style="background:var(--accent)"></i>attention weight</span><span><i style="border:1.5px solid var(--amber);background:transparent"></i>the copy target (induction)</span></div>
+  </div>
+  <p class="mini">A clean diagonal, offset by exactly the sequence length. That stripe <em>is</em> the copying algorithm, drawn out in the weights.</p>
+
+  <div style="margin-top:18px">
+  <p>Same head, on readable made-up words it has never seen — it still copies:</p>
+  <div class="demo"><span class="dq">“…s Vpharnix. I repeat, the secret code is”</span><span class="da">→ <b> V</b> <span class="dp">0.65</span></span></div><div class="demo"><span class="dq">“…to the market. Later that day, Zylthorpe”</span><span class="da">→ <b> was</b> <span class="dp">0.10</span></span></div>
+  <p class="mini">The first copies the invented code straight out of the prompt. (The second is a fuzzier case — the model prefers a natural continuation over a literal copy; induction competes with everything else the model wants to do, it doesn't always win.)</p>
+  </div>
+</section>
+
+<section>
+  <div class="eye">Why this one matters so much</div>
+  <div class="why">
+    <h3>This is where in-context learning comes from</h3>
+    <p>A head that copies "what followed this last time" is a general-purpose <b>pattern-continuer</b>. It's not tied to any specific words — give it any repeated structure and it extends it. This single mechanism is a big part of why models can pick up a pattern from your prompt (a format, a list, a translation style) and keep it going <em>without any training</em> — the learning happens inside the forward pass, by looking back. Heads like this one are believed to be a core engine of that ability.</p>
+  </div>
+  <ul class="clean">
+    <li><b>Attention is not just soft averaging.</b> A single head can implement a sharp, statable algorithm — and you can find it, score it, and watch it run.</li>
+    <li><b>Nothing here was cherry-picked.</b> The 0%→96% jump, the head ranking, and the stripe are all direct reads from real GPT-2 on random inputs.</li>
+    <li><b>It's the small model.</b> The effect is already crisp at 124M; in bigger models these heads are stronger and more numerous.</li>
+  </ul>
+</section>
+
+<section>
+  <div class="eye">Connecting it back</div>
+  <p class="aha">Sessions 4–5 showed attention as a mechanism. This shows it as a <em>program</em>: one head in a real model runs "copy what came next last time," proven by a 0%→96% jump on repeated randoms and drawn as a clean stripe in its attention. The heads don't just relate words — some of them compute recognisable algorithms, and this particular algorithm is much of how a model learns from its own prompt.</p>
+  <p class="next">Real code: <b>09-induction/induction.py</b> · real GPT-2, all 144 heads scored on random repeated sequences — every number a direct computation.<br>
+  Next real-model experiments queued: real <b>feed-forward neurons</b> that detect concepts, and <b>“bank” splitting</b> across layers.</p>
+</section>
+</div>
