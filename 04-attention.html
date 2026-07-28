@@ -1,0 +1,158 @@
+<title>Session 4 — Attention</title>
+<style>
+:root{--bg:#0E1420;--bg2:#141D2C;--panel:#18212F;--ink:#EAEEF4;--soft:#B4BFD0;--dim:#8493A8;--faint:#5A6577;
+--line:rgba(150,170,205,.14);--accent:#4FA8B8;--amber:#E3A63A;--serif:"Iowan Old Style",Palatino,Georgia,serif;
+--sans:-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.7;font-size:17px}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px}
+p{color:var(--soft);margin:0 0 16px}b{color:var(--ink)}em{color:var(--ink);font-style:italic}
+.kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--serif);font-size:clamp(34px,6vw,54px);line-height:1.05;margin:14px 0 0;color:#fff;letter-spacing:-.02em}
+h2{font-family:var(--serif);font-size:27px;margin:0 0 8px;color:#fff}
+.dek{font-size:19px;color:var(--soft);margin-top:18px;max-width:60ch}
+section{padding:44px 0;border-top:1px solid var(--line)}
+.eye{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.why{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 20px;margin:16px 0}
+.why h3{margin:0 0 6px;font-size:13px;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}.why p{margin:0;font-size:15px;color:var(--soft)}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-top:14px}
+.mini{font-family:var(--mono);font-size:12px;color:var(--faint);margin-top:10px}
+.qkv{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px}
+@media(max-width:640px){.qkv{grid-template-columns:1fr}}
+.qk{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.qk .t{font-family:var(--mono);font-size:13px;font-weight:600;margin-bottom:4px}.qk.q .t{color:var(--amber)}.qk.k .t{color:#7FD3E0}.qk.v .t{color:#9B8CE0}
+.qk p{margin:0;font-size:14px;color:var(--dim)}
+.panel{background:linear-gradient(180deg,#10161D,#0D131A);border:1px solid var(--line);border-radius:14px;padding:8px;margin-top:14px;overflow:hidden}
+.panel canvas{display:block;width:100%;height:auto;border-radius:8px}
+.readout{font-family:var(--mono);font-size:12px;color:var(--dim);padding:9px 12px 4px}.readout b{color:var(--accent)}
+.heat{display:inline-block;font-family:var(--mono);margin-top:6px;overflow-x:auto;max-width:100%}
+.hrow{display:flex}
+.hc{width:52px;height:34px;display:flex;align-items:center;justify-content:center;font-size:11px;flex:0 0 auto}
+.hc.lab{color:var(--dim)}.hc.rlab{width:56px;justify-content:flex-end;padding-right:8px;color:var(--soft)}
+.hc.cell{border:1px solid rgba(10,15,25,.6);color:#eaf6f8;font-size:10.5px}
+.hc.cell.strong{box-shadow:inset 0 0 0 1px var(--accent);font-weight:700;color:#fff}
+.hc.cell.mask{color:var(--faint);background:rgba(150,170,205,.03)}
+.hc.corner{width:56px}
+.aha{font-family:var(--serif);font-size:22px;line-height:1.4;color:#fff;border-left:3px solid var(--accent);padding-left:18px;margin:8px 0}
+.next{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:10px}
+</style>
+<div class="wrap">
+<nav style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;padding:14px 0;border-bottom:1px solid rgba(150,170,205,.16);margin-bottom:4px"><a href="index.html" style="color:#4FA8B8;text-decoration:none;font-weight:700">🔤 The Lab</a><span style="color:#5A6577">· Session 4</span><span style="margin-left:auto;display:flex;gap:16px"><a href="04-attention.html" style="color:#fff;font-weight:600;text-decoration:none">Tokens read each other</a></span></nav>
+<header style="padding:64px 0 8px">
+  <div class="kick">Build-an-LLM · Lab · Session 4 of 10</div>
+  <h1>Tokens read each other.</h1>
+  <p class="dek">After embeddings and positions, each token vector still sits <em>alone</em> — it knows what it is and where it is, but nothing about the <b>other</b> words. Attention fixes that: every token looks at the others and <b>pulls in</b> information from the ones that matter to it. It's the heart of the transformer. Real attention weights below.</p>
+</header>
+
+<section>
+  <div class="eye">The problem</div>
+  <h2>A vector alone can't resolve meaning</h2>
+  <p>Meaning lives in context. In "the <em>river</em> bank" vs "the <em>savings</em> bank," the word <span class="mono">bank</span> should end up as two different vectors — but its embedding is the same for both. The only way to tell them apart is to <b>look at the neighbors</b>. That looking is attention.</p>
+</section>
+
+<section>
+  <div class="eye">The simplest form (Raschka §3.3) — real weights</div>
+  <h2>Attend to whoever you're most alike</h2>
+  <p>The barebones version: score every pair of tokens by how aligned their vectors are (a dot product), softmax each row into weights, and rebuild each token as a <b>weighted blend</b> of all tokens. Here's that computed on real 50-D vectors for <span class="mono">a happy dog and a sad cat</span> — each row shows what that word attends to:</p>
+  <div class="card"><div class='heat'><div class='hrow'><span class='hc corner'></span><span class='hc lab'>a</span><span class='hc lab'>happy</span><span class='hc lab'>dog</span><span class='hc lab'>and</span><span class='hc lab'>a</span><span class='hc lab'>sad</span><span class='hc lab'>cat</span></div><div class='hrow'><span class='hc lab rlab'>a</span><span class='hc cell ' style='background:rgba(79,168,184,0.338)'>0.34</span><span class='hc cell ' style='background:rgba(79,168,184,0.058)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.065)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.122)'>0.12</span><span class='hc cell strong' style='background:rgba(79,168,184,0.338)'>0.34</span><span class='hc cell ' style='background:rgba(79,168,184,0.029)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.050)'>0.05</span></div><div class='hrow'><span class='hc lab rlab'>happy</span><span class='hc cell ' style='background:rgba(79,168,184,0.081)'>0.08</span><span class='hc cell ' style='background:rgba(79,168,184,0.473)'>0.47</span><span class='hc cell ' style='background:rgba(79,168,184,0.089)'>0.09</span><span class='hc cell ' style='background:rgba(79,168,184,0.070)'>0.07</span><span class='hc cell ' style='background:rgba(79,168,184,0.081)'>0.08</span><span class='hc cell ' style='background:rgba(79,168,184,0.136)'>0.14</span><span class='hc cell ' style='background:rgba(79,168,184,0.069)'>0.07</span></div><div class='hrow'><span class='hc lab rlab'>dog</span><span class='hc cell ' style='background:rgba(79,168,184,0.078)'>0.08</span><span class='hc cell ' style='background:rgba(79,168,184,0.077)'>0.08</span><span class='hc cell ' style='background:rgba(79,168,184,0.406)'>0.41</span><span class='hc cell ' style='background:rgba(79,168,184,0.043)'>0.04</span><span class='hc cell ' style='background:rgba(79,168,184,0.078)'>0.08</span><span class='hc cell ' style='background:rgba(79,168,184,0.021)'>0.02</span><span class='hc cell strong' style='background:rgba(79,168,184,0.297)'>0.30</span></div><div class='hrow'><span class='hc lab rlab'>and</span><span class='hc cell ' style='background:rgba(79,168,184,0.170)'>0.17</span><span class='hc cell ' style='background:rgba(79,168,184,0.070)'>0.07</span><span class='hc cell ' style='background:rgba(79,168,184,0.050)'>0.05</span><span class='hc cell ' style='background:rgba(79,168,184,0.471)'>0.47</span><span class='hc cell ' style='background:rgba(79,168,184,0.170)'>0.17</span><span class='hc cell ' style='background:rgba(79,168,184,0.025)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.045)'>0.05</span></div><div class='hrow'><span class='hc lab rlab'>a</span><span class='hc cell strong' style='background:rgba(79,168,184,0.338)'>0.34</span><span class='hc cell ' style='background:rgba(79,168,184,0.058)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.065)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.122)'>0.12</span><span class='hc cell ' style='background:rgba(79,168,184,0.338)'>0.34</span><span class='hc cell ' style='background:rgba(79,168,184,0.029)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.050)'>0.05</span></div><div class='hrow'><span class='hc lab rlab'>sad</span><span class='hc cell ' style='background:rgba(79,168,184,0.054)'>0.05</span><span class='hc cell ' style='background:rgba(79,168,184,0.178)'>0.18</span><span class='hc cell ' style='background:rgba(79,168,184,0.033)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.033)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.054)'>0.05</span><span class='hc cell ' style='background:rgba(79,168,184,0.618)'>0.62</span><span class='hc cell ' style='background:rgba(79,168,184,0.031)'>0.03</span></div><div class='hrow'><span class='hc lab rlab'>cat</span><span class='hc cell ' style='background:rgba(79,168,184,0.063)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.063)'>0.06</span><span class='hc cell strong' style='background:rgba(79,168,184,0.316)'>0.32</span><span class='hc cell ' style='background:rgba(79,168,184,0.041)'>0.04</span><span class='hc cell ' style='background:rgba(79,168,184,0.063)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.021)'>0.02</span><span class='hc cell ' style='background:rgba(79,168,184,0.432)'>0.43</span></div></div></div>
+  <p class="mini">Read a row: <b>dog</b> attends to <span class="mono">cat</span> (0.30) and itself; <b>sad</b> attends to <span class="mono">happy</span> (0.18). Animals pull toward animals, feelings toward feelings — nobody told it the categories; the geometry did.</p>
+</section>
+
+<section>
+  <div class="eye">The general form (Raschka §3.4)</div>
+  <h2>Query · Key · Value — make the "looking" learnable</h2>
+  <p>Raw similarity is fixed. Real attention learns <b>three</b> projections of each token so the model can <em>decide</em> what to look for — instead of "who's most alike," it's "who has what I need":</p>
+  <div class="qkv">
+    <div class="qk q"><div class="t">Query</div><p>what <em>this</em> token is looking for</p></div>
+    <div class="qk k"><div class="t">Key</div><p>what each token <em>offers</em></p></div>
+    <div class="qk v"><div class="t">Value</div><p>what it <em>hands over</em> if attended to</p></div>
+  </div>
+  <p style="margin-top:14px">score = Query · Key → softmax → weights → output = weighted sum of <b>Values</b>. Same shape as above, but Q/K/V are trained, so the model learns <em>useful</em> attention patterns, not just similarity.</p>
+</section>
+
+<section>
+  <div class="eye">Watch it happen</div>
+  <h2>One token gathering from the rest</h2>
+  <p>This is the whole mechanism in motion: a token fires its <span style="color:var(--amber)">query</span>, each other token answers with a <span style="color:#7FD3E0">match score</span>, softmax turns those into weights, and the token pulls back a weighted <span style="color:#9B8CE0">blend</span> — its new, context-aware vector. Real weights, cycling through each word:</p>
+  <div class="panel"><canvas data-anim="attn" height="320"></canvas>
+    <div class="readout"><span id="at-r">—</span></div>
+  </div>
+  <p class="mini">Beam thickness = attention weight. Every token does this at once; here we watch one at a time.</p>
+</section>
+
+<section>
+  <div class="eye">The GPT twist</div>
+  <h2>You may only look left</h2>
+  <p>In a generator, a token can't peek at words that come <em>after</em> it (that'd be cheating at "predict the next word"). So GPT applies a <b>causal mask</b> — it zeros out the future, keeping only the lower triangle. The same matrix, masked:</p>
+  <div class="card"><div class='heat'><div class='hrow'><span class='hc corner'></span><span class='hc lab'>a</span><span class='hc lab'>happy</span><span class='hc lab'>dog</span><span class='hc lab'>and</span><span class='hc lab'>a</span><span class='hc lab'>sad</span><span class='hc lab'>cat</span></div><div class='hrow'><span class='hc lab rlab'>a</span><span class='hc cell ' style='background:rgba(79,168,184,1.000)'>1.00</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span></div><div class='hrow'><span class='hc lab rlab'>happy</span><span class='hc cell ' style='background:rgba(79,168,184,0.146)'>0.15</span><span class='hc cell ' style='background:rgba(79,168,184,0.854)'>0.85</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span></div><div class='hrow'><span class='hc lab rlab'>dog</span><span class='hc cell ' style='background:rgba(79,168,184,0.139)'>0.14</span><span class='hc cell ' style='background:rgba(79,168,184,0.137)'>0.14</span><span class='hc cell ' style='background:rgba(79,168,184,0.724)'>0.72</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span></div><div class='hrow'><span class='hc lab rlab'>and</span><span class='hc cell ' style='background:rgba(79,168,184,0.223)'>0.22</span><span class='hc cell ' style='background:rgba(79,168,184,0.092)'>0.09</span><span class='hc cell ' style='background:rgba(79,168,184,0.066)'>0.07</span><span class='hc cell ' style='background:rgba(79,168,184,0.619)'>0.62</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span></div><div class='hrow'><span class='hc lab rlab'>a</span><span class='hc cell strong' style='background:rgba(79,168,184,0.367)'>0.37</span><span class='hc cell ' style='background:rgba(79,168,184,0.063)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.071)'>0.07</span><span class='hc cell ' style='background:rgba(79,168,184,0.132)'>0.13</span><span class='hc cell ' style='background:rgba(79,168,184,0.367)'>0.37</span><span class='hc cell mask'>·</span><span class='hc cell mask'>·</span></div><div class='hrow'><span class='hc lab rlab'>sad</span><span class='hc cell ' style='background:rgba(79,168,184,0.055)'>0.05</span><span class='hc cell ' style='background:rgba(79,168,184,0.184)'>0.18</span><span class='hc cell ' style='background:rgba(79,168,184,0.034)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.034)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.055)'>0.05</span><span class='hc cell ' style='background:rgba(79,168,184,0.637)'>0.64</span><span class='hc cell mask'>·</span></div><div class='hrow'><span class='hc lab rlab'>cat</span><span class='hc cell ' style='background:rgba(79,168,184,0.063)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.063)'>0.06</span><span class='hc cell strong' style='background:rgba(79,168,184,0.316)'>0.32</span><span class='hc cell ' style='background:rgba(79,168,184,0.041)'>0.04</span><span class='hc cell ' style='background:rgba(79,168,184,0.063)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.021)'>0.02</span><span class='hc cell ' style='background:rgba(79,168,184,0.432)'>0.43</span></div></div></div>
+  <p class="mini">Upper triangle (·) is blocked. <b>cat</b>, the last word, may attend to everything before it; <b>a</b>, the first, can only attend to itself.</p>
+</section>
+
+<section>
+  <div class="eye">The one-line aha</div>
+  <p class="aha">Attention is each token asking "who here is relevant to me?" and rebuilding itself as a weighted blend of them — which is how a vector finally becomes <em>context-aware</em> instead of alone.</p>
+  <p class="next">Real code: <b>04-attention/attn.py</b> · Raschka <b>ch3</b> (§3.3 simple → §3.4 Q/K/V → causal mask).<br>
+  Next → <b>Session 5 · Many heads</b>: run several attentions in parallel, each hunting a different kind of relationship.</p>
+</section>
+</div>
+<script>
+(function(){
+  const T=["a", "happy", "dog", "and", "a", "sad", "cat"], A=[[0.33799999952316284, 0.057999998331069946, 0.06499999761581421, 0.12200000137090683, 0.33799999952316284, 0.028999999165534973, 0.05000000074505806], [0.08100000023841858, 0.4729999899864197, 0.08900000154972076, 0.07000000029802322, 0.08100000023841858, 0.13600000739097595, 0.0689999982714653], [0.07800000160932541, 0.07699999958276749, 0.4059999883174896, 0.0430000014603138, 0.07800000160932541, 0.020999999716877937, 0.296999990940094], [0.17000000178813934, 0.07000000029802322, 0.05000000074505806, 0.47099998593330383, 0.17000000178813934, 0.02500000037252903, 0.04500000178813934], [0.33799999952316284, 0.057999998331069946, 0.06499999761581421, 0.12200000137090683, 0.33799999952316284, 0.028999999165534973, 0.05000000074505806], [0.05400000140070915, 0.17800000309944153, 0.032999999821186066, 0.032999999821186066, 0.05400000140070915, 0.6179999709129333, 0.03099999949336052], [0.06300000101327896, 0.06300000101327896, 0.3160000145435333, 0.04100000113248825, 0.06300000101327896, 0.020999999716877937, 0.4320000112056732]];
+  const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MONO='ui-monospace,Menlo,Consolas,monospace';
+  const C={accent:'#4FA8B8',amber:'#E3A63A',key:'#7FD3E0',val:'#9B8CE0',ink:'#E7EFF1',mut:'#8B9BA2',dim:'#586770',line:'#243440'};
+  const cv=document.querySelector('canvas[data-anim=attn]'); if(!cv)return;
+  let ctx,w,h;
+  function fit(){const dpr=Math.min(devicePixelRatio||1,2);w=cv.clientWidth;h=parseInt(cv.getAttribute('height'))||320;
+    cv.width=w*dpr;cv.height=h*dpr;ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);}
+  fit();
+  const n=T.length;
+  function nodeX(i){return 60+ (w-120)*(i/(n-1));}
+  const ny=h*0.30, fy=h*0.72;    // token row y, focus-output y
+  function rr(x,y,ww,hh,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+ww,y,x+ww,y+hh,r);ctx.arcTo(x+ww,y+hh,x,y+hh,r);ctx.arcTo(x,y+hh,x,y,r);ctx.arcTo(x,y,x+ww,y,r);ctx.closePath();}
+  function txt(s,x,y,col,sz,al){ctx.save();ctx.font=sz+'px '+MONO;ctx.textAlign=al||'center';ctx.textBaseline='middle';ctx.fillStyle=col;ctx.fillText(s,x,y);ctx.restore();}
+  function node(i,hi,dim){const x=nodeX(i),bw=Math.min(70,(w-120)/n*0.9),bh=30;
+    ctx.save();
+    if(hi){ctx.shadowColor=C.amber;ctx.shadowBlur=14;ctx.strokeStyle=C.amber;ctx.fillStyle='rgba(227,166,58,.10)';}
+    else{ctx.strokeStyle=C.line;ctx.fillStyle='rgba(139,155,162,.05)';}
+    ctx.globalAlpha=dim?0.5:1;ctx.lineWidth=1.4;rr(x-bw/2,ny-bh/2,bw,bh,7);ctx.fill();ctx.stroke();ctx.restore();
+    txt(T[i],x,ny,hi?C.ink:C.mut,13,'center');}
+  function draw(t){
+    ctx.clearRect(0,0,w,h);
+    const CYC=3.4, tt=RM?1.2:(t%(CYC*n)), fi=(Math.floor(tt/CYC)+2)%n, ph=(tt%CYC)/CYC;
+    const wts=A[fi];
+    // beams from focus to each token, weight = wts[j]
+    for(let j=0;j<n;j++){ if(j===fi) continue;
+      const x1=nodeX(fi), x2=nodeX(j), a=wts[j];
+      const reveal = ph<0.30? ph/0.30 : 1;
+      ctx.save();ctx.globalAlpha=Math.min(1,reveal)*(0.25+a*1.4);
+      ctx.strokeStyle=C.key;ctx.lineWidth=0.6+a*7;
+      ctx.beginPath();ctx.moveTo(x2,ny+16);ctx.quadraticCurveTo((x1+x2)/2,ny+70,x1,fy-14);ctx.stroke();ctx.restore();
+      if(ph>0.12&&ph<0.34) txt(a.toFixed(2),(x1+x2)/2,ny+58,C.key,10,'center');
+    }
+    // gather packets: values flow from tokens to focus output
+    if(ph>=0.42&&ph<0.82){const g=(ph-0.42)/0.40;
+      for(let j=0;j<n;j++){const a=wts[j];if(a<0.03)continue;
+        const x2=nodeX(j),x1=nodeX(fi);
+        function bez(u){const b=1-u;return [b*b*x2+2*b*u*(x1+x2)/2+u*u*x1, b*b*(ny+16)+2*b*u*(ny+70)+u*u*(fy-14)];}
+        const p=bez(g);ctx.save();ctx.shadowColor=C.val;ctx.shadowBlur=8;ctx.fillStyle=C.val;
+        ctx.globalAlpha=0.5+a;ctx.beginPath();ctx.arc(p[0],p[1],2+a*7,0,7);ctx.fill();ctx.restore();}
+    }
+    // tokens
+    for(let i=0;i<n;i++) node(i, i===fi, false);
+    // focus output node
+    const fx=nodeX(fi), done=ph>=0.78;
+    ctx.save();ctx.shadowColor=C.val;ctx.shadowBlur=done?18:8;ctx.strokeStyle=C.val;ctx.fillStyle='rgba(155,140,255,.12)';
+    ctx.lineWidth=1.6;rr(fx-46,fy-16,92,32,8);ctx.fill();ctx.stroke();ctx.restore();
+    txt('new '+T[fi],fx,fy,C.ink,12.5,'center');
+    // labels + readout
+    txt('query',nodeX(fi),ny-26,C.amber,11,'center');
+    const el=document.getElementById('at-r');
+    if(el){const order=A[fi].map((a,j)=>[T[j],a]).sort((p,q)=>q[1]-p[1]).slice(0,3).map(p=>p[0]+' '+p[1].toFixed(2)).join(' · ');
+      el.innerHTML='<b>'+T[fi]+'</b> attends to → '+order;}
+  }
+  let raf,t0=performance.now();function frame(now){draw((now-t0)/1000);raf=requestAnimationFrame(frame);}
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){if(!raf){t0=performance.now();raf=requestAnimationFrame(frame);}}else{cancelAnimationFrame(raf);raf=0;}}),{threshold:.12});
+  if(RM)draw(1.2); else io.observe(cv);
+  let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{fit();if(RM)draw(1.2);},150);});
+})();
+</script>
