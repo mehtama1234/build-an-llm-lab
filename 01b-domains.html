@@ -1,0 +1,83 @@
+<title>Tokenizers: change them? build them?</title>
+<style>
+:root{--bg:#0E1420;--bg2:#141D2C;--panel:#18212F;--ink:#EAEEF4;--soft:#B4BFD0;--dim:#8493A8;--faint:#5A6577;
+--line:rgba(150,170,205,.14);--accent:#4FA8B8;--serif:"Iowan Old Style",Palatino,Georgia,serif;
+--sans:-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.7;font-size:17px}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px}
+p{color:var(--soft);margin:0 0 16px}b{color:var(--ink)}em{color:var(--ink);font-style:italic}
+.kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--serif);font-size:clamp(30px,5vw,46px);line-height:1.06;margin:12px 0 0;color:#fff;letter-spacing:-.02em}
+h2{font-family:var(--serif);font-size:26px;margin:0 0 8px;color:#fff}
+.dek{font-size:18.5px;color:var(--soft);margin-top:16px;max-width:62ch}
+section{padding:42px 0;border-top:1px solid var(--line)}
+.eye{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.why{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 20px;margin:16px 0}
+.why h3{margin:0 0 6px;font-size:13px;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.why p{margin:0 0 8px;font-size:15px;color:var(--soft)} .why p:last-child{margin:0}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-top:14px}
+.trow{display:grid;grid-template-columns:96px 1fr;gap:10px 12px;align-items:center;padding:7px 0;border-top:1px dashed var(--line)}
+.trow:first-child{border-top:none} .tl{font-family:var(--mono);font-size:13px;color:var(--ink)}
+.tbarwrap{display:flex;align-items:center;gap:8px} .tbar{height:15px;border-radius:5px;min-width:4px}
+.tnum{font-family:var(--mono);font-size:12px;color:var(--soft);white-space:nowrap}
+.ttxt{grid-column:2;font-size:15px;color:var(--dim);margin-top:-2px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.two h4{margin:0 0 4px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.two .p h4{color:#6FB98A} .two .c h4{color:#E3A63A}
+.mrow{display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:center;padding:5px 0;border-top:1px solid var(--line)}
+.mrow:first-of-type{border-top:none}
+.mi{font-family:var(--mono);font-size:11px;color:var(--faint)}
+.mpair{font-family:var(--mono);font-size:13px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.mpair b{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--ink)}
+.plus,.arr{color:var(--faint)} .mres{background:color-mix(in srgb,var(--accent) 18%,transparent);border:1px solid var(--accent);border-radius:5px;padding:1px 7px;color:#fff;font-weight:600}
+.mcnt{font-family:var(--mono);font-size:11px;color:var(--dim)}
+.sp{color:var(--faint)}
+.aha{font-family:var(--serif);font-size:21px;line-height:1.4;color:#fff;border-left:3px solid var(--accent);padding-left:18px;margin:8px 0}
+.algo{font-family:var(--mono);font-size:13.5px;color:var(--soft);line-height:1.8}
+.algo b{color:var(--accent)}
+@media(max-width:640px){.two{grid-template-columns:1fr}.trow{grid-template-columns:1fr}.tbarwrap{grid-column:1}.ttxt{grid-column:1}}
+</style>
+<div class="wrap">
+<nav style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;padding:14px 0;border-bottom:1px solid rgba(150,170,205,.16);margin-bottom:4px"><a href="index.html" style="color:#4FA8B8;text-decoration:none;font-weight:700">🔤 The Lab</a><span style="color:#5A6577">·&nbsp; Session 1</span><span style="margin-left:auto;display:flex;gap:16px"><a href="01-tokenization.html" style="color:#8493A8;text-decoration:none;text-decoration:none">Text becomes numbers</a><a href="01b-domains.html" style="color:#fff;font-weight:600;text-decoration:none">Change it? Build it?</a><a href="01c-bpe.html" style="color:#8493A8;text-decoration:none;text-decoration:none">BPE</a></span></nav>
+<header style="padding:60px 0 8px">
+  <div class="kick">Build-an-LLM · Lab · Session 1 · follow-up</div>
+  <h1>Do you swap the tokenizer<br>for a new domain? And how is one built?</h1>
+  <p class="dek">Both come down to one fact: <b>a tokenizer is <em>learned from a corpus</em></b> — it's tuned to whatever text it was trained on. So it's efficient on that, wasteful off it. Real runs below.</p>
+</header>
+
+<section>
+  <div class="eye">1 · Do you change it?</div>
+  <h2>The "tokenizer tax."</h2>
+  <p>GPT-2's tokenizer is byte-level, so it <em>can</em> encode anything — any language, code, DNA — it never fails. But it was trained on English web text, so off-domain input is <b>wildly inefficient</b>: the same greeting costs far more tokens. More tokens = more money + less usable context. Same sentence "Hello, how are you today?", ten domains:</p>
+  <div class="card"><div class='trow'><span class='tl'>English</span><span class='tbarwrap'><span class='tbar' style='width:19%;background:#6FB98A'></span><span class='tnum'>7 tok</span></span><span class='ttxt'>Hello, how are you today?</span></div><div class='trow'><span class='tl'>Python code</span><span class='tbarwrap'><span class='tbar' style='width:31%;background:#E3A63A'></span><span class='tnum'>11 tok</span></span><span class='ttxt'>def add(a, b): return a + b</span></div><div class='trow'><span class='tl'>German</span><span class='tbarwrap'><span class='tbar' style='width:33%;background:#E3A63A'></span><span class='tnum'>12 tok</span></span><span class='ttxt'>Hallo, wie geht es dir heute?</span></div><div class='trow'><span class='tl'>Spanish</span><span class='tbarwrap'><span class='tbar' style='width:36%;background:#E3A63A'></span><span class='tnum'>13 tok</span></span><span class='ttxt'>Hola, ¿cómo estás hoy?</span></div><div class='trow'><span class='tl'>DNA</span><span class='tbarwrap'><span class='tbar' style='width:39%;background:#E3A63A'></span><span class='tnum'>14 tok</span></span><span class='ttxt'>ATCGGCTAGCTAGCTAGCATCGATCG</span></div><div class='trow'><span class='tl'>Chinese</span><span class='tbarwrap'><span class='tbar' style='width:58%;background:#E76A80'></span><span class='tnum'>21 tok</span></span><span class='ttxt'>你好，你今天怎么样？</span></div><div class='trow'><span class='tl'>Japanese</span><span class='tbarwrap'><span class='tbar' style='width:58%;background:#E76A80'></span><span class='tnum'>21 tok</span></span><span class='ttxt'>こんにちは、今日はどうですか？</span></div><div class='trow'><span class='tl'>Arabic</span><span class='tbarwrap'><span class='tbar' style='width:67%;background:#D98A5B'></span><span class='tnum'>24 tok</span></span><span class='ttxt'>مرحبا، كيف حالك اليوم؟</span></div><div class='trow'><span class='tl'>Russian</span><span class='tbarwrap'><span class='tbar' style='width:75%;background:#D98A5B'></span><span class='tnum'>27 tok</span></span><span class='ttxt'>Привет, как дела сегодня?</span></div><div class='trow'><span class='tl'>Hindi</span><span class='tbarwrap'><span class='tbar' style='width:100%;background:#E76A80'></span><span class='tnum'>36 tok</span></span><span class='ttxt'>नमस्ते, आज आप कैसे हैं?</span></div></div>
+  <p class="mini" style="font-family:var(--mono);font-size:12px;color:var(--faint);margin-top:10px">Same meaning: <b style="color:#6FB98A">7 tokens in English</b> → <b style="color:#E76A80">36 tokens in Hindi</b>. That ~5× gap is a real cost non-English users pay.</p>
+  <div class="why"><h3>So — three choices</h3>
+    <p><b>Reuse it</b> (default): fine if your text is close to the original. Byte-level means it never breaks, just gets pricey off-domain.</p>
+    <p><b>Train a new one</b>: if your domain is far (code, Hindi, protein/DNA, legal), train fresh BPE on <em>your</em> corpus → far fewer tokens per input. StarCoder, multilingual models, BloombergGPT all do this.</p>
+    <p><b>Extend it</b>: bolt domain tokens onto a pretrained tokenizer + continue training — the cheap way to adapt an English model to a new language.</p>
+  </div>
+</section>
+
+<section>
+  <div class="eye">2 · How is one built?</div>
+  <h2>Byte-Pair Encoding, built by hand.</h2>
+  <p class="algo">The whole training algorithm:<br>
+  <b>1.</b> start with the raw alphabet (characters / bytes)<br>
+  <b>2.</b> count every adjacent pair in the corpus<br>
+  <b>3.</b> merge the <em>most frequent</em> pair into one new token; add it to the vocabulary<br>
+  <b>4.</b> repeat until you hit your target vocab size</p>
+  <p>The learned <b>merge rules, in order, <em>are</em> the tokenizer.</b> Here's that loop run for real — the first 8 merges it discovers, trained separately on English prose vs Python code. Watch the units it invents:</p>
+  <div class="two">
+    <div class="card p"><h4>trained on prose</h4><div class='mrow'><span class='mi'>1</span><span class='mpair'><b><span class='sp'>·</span></b><span class='plus'>+</span><b>t</b><span class='arr'>→</span><span class='mres'><span class='sp'>·</span>t</span></span><span class='mcnt'>×107</span></div><div class='mrow'><span class='mi'>2</span><span class='mpair'><b>h</b><span class='plus'>+</span><b>e</b><span class='arr'>→</span><span class='mres'>he</span></span><span class='mcnt'>×66</span></div><div class='mrow'><span class='mi'>3</span><span class='mpair'><b><span class='sp'>·</span>t</b><span class='plus'>+</span><b>he</b><span class='arr'>→</span><span class='mres'><span class='sp'>·</span>the</span></span><span class='mcnt'>×65</span></div><div class='mrow'><span class='mi'>4</span><span class='mpair'><b><span class='sp'>·</span>the</b><span class='plus'>+</span><b><span class='sp'>·</span></b><span class='arr'>→</span><span class='mres'><span class='sp'>·</span>the<span class='sp'>·</span></span></span><span class='mcnt'>×47</span></div><div class='mrow'><span class='mi'>5</span><span class='mpair'><b>r</b><span class='plus'>+</span><b>e</b><span class='arr'>→</span><span class='mres'>re</span></span><span class='mcnt'>×36</span></div><div class='mrow'><span class='mi'>6</span><span class='mpair'><b>m</b><span class='plus'>+</span><b>o</b><span class='arr'>→</span><span class='mres'>mo</span></span><span class='mcnt'>×30</span></div><div class='mrow'><span class='mi'>7</span><span class='mpair'><b>e</b><span class='plus'>+</span><b>c</b><span class='arr'>→</span><span class='mres'>ec</span></span><span class='mcnt'>×30</span></div><div class='mrow'><span class='mi'>8</span><span class='mpair'><b><span class='sp'>·</span>t</b><span class='plus'>+</span><b>o</b><span class='arr'>→</span><span class='mres'><span class='sp'>·</span>to</span></span><span class='mcnt'>×30</span></div></div>
+    <div class="card c"><h4>trained on code</h4><div class='mrow'><span class='mi'>1</span><span class='mpair'><b><span class='sp'>·</span></b><span class='plus'>+</span><b><span class='sp'>·</span></b><span class='arr'>→</span><span class='mres'><span class='sp'>·</span><span class='sp'>·</span></span></span><span class='mcnt'>×90</span></div><div class='mrow'><span class='mi'>2</span><span class='mpair'><b><span class='sp'>\n</span></b><span class='plus'>+</span><b><span class='sp'>·</span><span class='sp'>·</span></b><span class='arr'>→</span><span class='mres'><span class='sp'>\n</span><span class='sp'>·</span><span class='sp'>·</span></span></span><span class='mcnt'>×30</span></div><div class='mrow'><span class='mi'>3</span><span class='mpair'><b><span class='sp'>\n</span><span class='sp'>·</span><span class='sp'>·</span></b><span class='plus'>+</span><b><span class='sp'>·</span><span class='sp'>·</span></b><span class='arr'>→</span><span class='mres'><span class='sp'>\n</span><span class='sp'>·</span><span class='sp'>·</span><span class='sp'>·</span><span class='sp'>·</span></span></span><span class='mcnt'>×30</span></div><div class='mrow'><span class='mi'>4</span><span class='mpair'><b><span class='sp'>·</span></b><span class='plus'>+</span><b>a</b><span class='arr'>→</span><span class='mres'><span class='sp'>·</span>a</span></span><span class='mcnt'>×24</span></div><div class='mrow'><span class='mi'>5</span><span class='mpair'><b>,</b><span class='plus'>+</span><b><span class='sp'>·</span></b><span class='arr'>→</span><span class='mres'>,<span class='sp'>·</span></span></span><span class='mcnt'>×24</span></div><div class='mrow'><span class='mi'>6</span><span class='mpair'><b>d</b><span class='plus'>+</span><b>e</b><span class='arr'>→</span><span class='mres'>de</span></span><span class='mcnt'>×18</span></div><div class='mrow'><span class='mi'>7</span><span class='mpair'><b>de</b><span class='plus'>+</span><b>f</b><span class='arr'>→</span><span class='mres'>def</span></span><span class='mcnt'>×18</span></div><div class='mrow'><span class='mi'>8</span><span class='mpair'><b>)</b><span class='plus'>+</span><b>:</b><span class='arr'>→</span><span class='mres'>):</span></span><span class='mcnt'>×18</span></div></div>
+  </div>
+  <div class="why"><h3>Same algorithm, opposite vocabulary</h3>
+    <p>Prose builds toward words — watch <b>·the</b> assemble itself merge by merge (<code style="font-family:var(--mono)">·+t</code> → <code style="font-family:var(--mono)">·t</code>, then <code style="font-family:var(--mono)">+he</code> → <code style="font-family:var(--mono)">·the</code>). Code's very first merge is <b>two spaces</b> (indentation!), then a newline+indent, then <b>def</b> and <b>):</b> emerge as single tokens. A prose tokenizer would never spend vocab on indentation; a code tokenizer must. That's why domain tokenizers exist.</p>
+  </div>
+</section>
+
+<section>
+  <div class="eye">The aha</div>
+  <p class="aha">A tokenizer isn't fixed machinery — it's a compression scheme <em>learned</em> from a pile of text. Point it at different text and it invents different units. Change the domain far enough and you retrain it.</p>
+  <p style="font-family:var(--mono);font-size:13px;color:var(--dim)">Build a real one with: <b>HuggingFace <code>tokenizers</code></b> (fast BPE), <b>Google <code>sentencepiece</code></b> (Llama/T5), or Karpathy's <b>minbpe</b> (the ~read-it-all educational version). Raschka ch02 builds a simple one too.</p>
+</div>
