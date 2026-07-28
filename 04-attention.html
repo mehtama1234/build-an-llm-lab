@@ -32,6 +32,9 @@ section{padding:44px 0;border-top:1px solid var(--line)}
 .hc.cell.strong{box-shadow:inset 0 0 0 1px var(--accent);font-weight:700;color:#fff}
 .hc.cell.mask{color:var(--faint);background:rgba(150,170,205,.03)}
 .hc.corner{width:56px}
+.wpbox{background:var(--bg2);border:1px solid var(--line);border-left:3px solid #9B8CE0;border-radius:12px;padding:14px 16px;margin-top:16px}
+.wpt{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#9B8CE0;margin-bottom:6px}
+.wpbox p{margin:0;font-size:14px;color:var(--dim)}
 .aha{font-family:var(--serif);font-size:22px;line-height:1.4;color:#fff;border-left:3px solid var(--accent);padding-left:18px;margin:8px 0}
 .next{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:10px}
 </style>
@@ -52,7 +55,7 @@ section{padding:44px 0;border-top:1px solid var(--line)}
 <section>
   <div class="eye">The simplest form (Raschka §3.3) — real weights</div>
   <h2>Attend to whoever you're most alike</h2>
-  <p>The barebones version: score every pair of tokens by how aligned their vectors are (a dot product), softmax each row into weights, and rebuild each token as a <b>weighted blend</b> of all tokens. Here's that computed on real 50-D vectors for <span class="mono">a happy dog and a sad cat</span> — each row shows what that word attends to:</p>
+  <p>The barebones version: score every pair of tokens by how aligned their vectors are (a dot product), softmax each row into weights, and rebuild each token as a <b>weighted blend</b> of all tokens. That rebuilt vector has a name in the book — a <b>context vector</b>: an enriched embedding that now carries information about the whole sentence, not just the one word. Here's that computed on real 50-D vectors for <span class="mono">a happy dog and a sad cat</span> — each row shows what that word attends to:</p>
   <div class="card"><div class='heat'><div class='hrow'><span class='hc corner'></span><span class='hc lab'>a</span><span class='hc lab'>happy</span><span class='hc lab'>dog</span><span class='hc lab'>and</span><span class='hc lab'>a</span><span class='hc lab'>sad</span><span class='hc lab'>cat</span></div><div class='hrow'><span class='hc lab rlab'>a</span><span class='hc cell ' style='background:rgba(79,168,184,0.338)'>0.34</span><span class='hc cell ' style='background:rgba(79,168,184,0.058)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.065)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.122)'>0.12</span><span class='hc cell strong' style='background:rgba(79,168,184,0.338)'>0.34</span><span class='hc cell ' style='background:rgba(79,168,184,0.029)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.050)'>0.05</span></div><div class='hrow'><span class='hc lab rlab'>happy</span><span class='hc cell ' style='background:rgba(79,168,184,0.081)'>0.08</span><span class='hc cell ' style='background:rgba(79,168,184,0.473)'>0.47</span><span class='hc cell ' style='background:rgba(79,168,184,0.089)'>0.09</span><span class='hc cell ' style='background:rgba(79,168,184,0.070)'>0.07</span><span class='hc cell ' style='background:rgba(79,168,184,0.081)'>0.08</span><span class='hc cell ' style='background:rgba(79,168,184,0.136)'>0.14</span><span class='hc cell ' style='background:rgba(79,168,184,0.069)'>0.07</span></div><div class='hrow'><span class='hc lab rlab'>dog</span><span class='hc cell ' style='background:rgba(79,168,184,0.078)'>0.08</span><span class='hc cell ' style='background:rgba(79,168,184,0.077)'>0.08</span><span class='hc cell ' style='background:rgba(79,168,184,0.406)'>0.41</span><span class='hc cell ' style='background:rgba(79,168,184,0.043)'>0.04</span><span class='hc cell ' style='background:rgba(79,168,184,0.078)'>0.08</span><span class='hc cell ' style='background:rgba(79,168,184,0.021)'>0.02</span><span class='hc cell strong' style='background:rgba(79,168,184,0.297)'>0.30</span></div><div class='hrow'><span class='hc lab rlab'>and</span><span class='hc cell ' style='background:rgba(79,168,184,0.170)'>0.17</span><span class='hc cell ' style='background:rgba(79,168,184,0.070)'>0.07</span><span class='hc cell ' style='background:rgba(79,168,184,0.050)'>0.05</span><span class='hc cell ' style='background:rgba(79,168,184,0.471)'>0.47</span><span class='hc cell ' style='background:rgba(79,168,184,0.170)'>0.17</span><span class='hc cell ' style='background:rgba(79,168,184,0.025)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.045)'>0.05</span></div><div class='hrow'><span class='hc lab rlab'>a</span><span class='hc cell strong' style='background:rgba(79,168,184,0.338)'>0.34</span><span class='hc cell ' style='background:rgba(79,168,184,0.058)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.065)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.122)'>0.12</span><span class='hc cell ' style='background:rgba(79,168,184,0.338)'>0.34</span><span class='hc cell ' style='background:rgba(79,168,184,0.029)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.050)'>0.05</span></div><div class='hrow'><span class='hc lab rlab'>sad</span><span class='hc cell ' style='background:rgba(79,168,184,0.054)'>0.05</span><span class='hc cell ' style='background:rgba(79,168,184,0.178)'>0.18</span><span class='hc cell ' style='background:rgba(79,168,184,0.033)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.033)'>0.03</span><span class='hc cell ' style='background:rgba(79,168,184,0.054)'>0.05</span><span class='hc cell ' style='background:rgba(79,168,184,0.618)'>0.62</span><span class='hc cell ' style='background:rgba(79,168,184,0.031)'>0.03</span></div><div class='hrow'><span class='hc lab rlab'>cat</span><span class='hc cell ' style='background:rgba(79,168,184,0.063)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.063)'>0.06</span><span class='hc cell strong' style='background:rgba(79,168,184,0.316)'>0.32</span><span class='hc cell ' style='background:rgba(79,168,184,0.041)'>0.04</span><span class='hc cell ' style='background:rgba(79,168,184,0.063)'>0.06</span><span class='hc cell ' style='background:rgba(79,168,184,0.021)'>0.02</span><span class='hc cell ' style='background:rgba(79,168,184,0.432)'>0.43</span></div></div></div>
   <p class="mini">Read a row: <b>dog</b> attends to <span class="mono">cat</span> (0.30) and itself; <b>sad</b> attends to <span class="mono">happy</span> (0.18). Animals pull toward animals, feelings toward feelings — nobody told it the categories; the geometry did.</p>
 </section>
@@ -66,7 +69,11 @@ section{padding:44px 0;border-top:1px solid var(--line)}
     <div class="qk k"><div class="t">Key</div><p>what each token <em>offers</em></p></div>
     <div class="qk v"><div class="t">Value</div><p>what it <em>hands over</em> if attended to</p></div>
   </div>
-  <p style="margin-top:14px">score = Query · Key → softmax → weights → output = weighted sum of <b>Values</b>. Same shape as above, but Q/K/V are trained, so the model learns <em>useful</em> attention patterns, not just similarity.</p>
+  <p style="margin-top:14px">score = Query · Key → <b>scale by √dₖ</b> → softmax → weights → context vector = weighted sum of <b>Values</b>. (The scaling matters: without it, large dot products push softmax to a near-step function and the gradients almost vanish — dividing by √dₖ keeps them healthy. That's why the book calls this <em>scaled</em> dot-product attention.) Q/K/V are trained, so the model learns <em>useful</em> attention patterns, not just similarity.</p>
+  <div class="wpbox">
+    <div class="wpt">Two different "weights" — don't mix them up</div>
+    <p><b>Weight parameters</b> (Wq, Wk, Wv) are the learned matrices — <em>fixed</em> once training ends. <b>Attention weights</b> are the softmax numbers in the grid above — <em>dynamic</em>, different for every sentence. Q and K <em>produce</em> the attention weights; V is what they're <em>applied to</em> → the context vector.</p>
+  </div>
 </section>
 
 <section>
@@ -88,9 +95,15 @@ section{padding:44px 0;border-top:1px solid var(--line)}
 </section>
 
 <section>
+  <div class="eye">One more training-time detail (Raschka §3.5.2)</div>
+  <h2>Dropout — hide some connections on purpose</h2>
+  <p>During <em>training only</em>, GPT randomly zeros out a fraction of the attention weights (~10–20%) each step, then scales the survivors up to compensate. It forces the model not to lean on any single connection, which reduces overfitting. At inference it's switched off — every connection is live. It's a regularizer bolted onto attention, not part of the core idea, which is why we compute the clean weights above.</p>
+</section>
+
+<section>
   <div class="eye">The one-line aha</div>
   <p class="aha">Attention is each token asking "who here is relevant to me?" and rebuilding itself as a weighted blend of them — which is how a vector finally becomes <em>context-aware</em> instead of alone.</p>
-  <p class="next">Real code: <b>04-attention/attn.py</b> · Raschka <b>ch3</b> (§3.3 simple → §3.4 Q/K/V → causal mask).<br>
+  <p class="next">Real code: <b>04-attention/attn.py</b> · Raschka <b>ch3</b> (§3.3 simple → §3.4 scaled Q/K/V → §3.5 causal mask + dropout).<br>
   Next → <b>Session 5 · Many heads</b>: run several attentions in parallel, each hunting a different kind of relationship.</p>
 </section>
 </div>

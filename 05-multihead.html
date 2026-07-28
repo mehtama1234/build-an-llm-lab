@@ -61,23 +61,27 @@ section{padding:44px 0;border-top:1px solid var(--line)}
 <section>
   <div class="eye">The mechanism</div>
   <h2>Split → attend in parallel → concatenate → mix</h2>
-  <p>You don't pay full price for each head. The token's vector is <b>split</b> into <em>h</em> smaller slices (768 dims → 12 heads × 64), each head does its own Q/K/V attention on its slice, then the outputs are <b>concatenated</b> back to full size and passed through one final projection that mixes them:</p>
+  <p>You don't pay full price for each head. The token's vector is <b>split</b> into <em>h</em> smaller slices (768 dims → 12 heads × 64), each head does its own Q/K/V attention on its slice, then the outputs are <b>concatenated</b> back to full size and passed through one final projection <b>W<sub>o</sub></b> (the "output projection") that mixes them:</p>
   <div class="mech">
     <div class="mbox">token vector · 768</div>
     <div class="mar">↓ split into h slices</div>
     <div class="mheads"><span class="mh">head 1<br>Q·K·V → attn</span><span class="mh">head 2<br>Q·K·V → attn</span><span class="mh">head 3<br>…</span><span class="mh">… head h</span></div>
     <div class="mar">↓ concatenate the outputs</div>
-    <div class="mbox">→ final projection (mixes heads)</div>
+    <div class="mbox">→ W<sub>o</sub> · final projection (mixes heads)</div>
     <div class="mar">↓</div>
-    <div class="mbox acc">new token vector · 768</div>
+    <div class="mbox acc">new context vector · 768</div>
   </div>
   <p class="mini">Total compute is about the same as one big head — you just divide the dimensions among the heads instead of adding more.</p>
+  <div class="why" style="border-left-color:#9B8CE0">
+    <h3>"Each head has its own Wq/Wk/Wv" and "one big Wq split into heads" are the same thing</h3>
+    <p>Raschka codes it both ways. The intuitive version stacks <em>h</em> separate attention modules, each with its own weight matrices. The efficient version uses <b>one</b> big Wq/Wk/Wv, does a single matrix multiply, then reshapes the result into <em>h</em> heads — one matmul instead of <em>h</em>. They're identical: the big matrix's column-blocks <em>are</em> the per-head matrices. Then W<sub>o</sub> mixes the concatenated heads back into one context vector.</p>
+  </div>
 </section>
 
 <section>
   <div class="eye">The one-line aha</div>
   <p class="aha">One head forces one answer to "what's relevant?"; many heads let a token ask that question several ways at once — then combine the answers. That parallel-of-relationships is why attention is so expressive.</p>
-  <p class="next">Real code: <b>05-multihead/multihead.py</b> · Raschka <b>ch3</b> (§3.6 multi-head attention).<br>
+  <p class="next">Real code: <b>05-multihead/multihead.py</b> · Raschka <b>ch3</b> (§3.6 multi-head attention — stacked heads → efficient weight-split + W<sub>o</sub>).<br>
   Next → <b>Session 6 · One block</b>: wrap attention + a feed-forward layer in residual connections and normalization — the repeating unit the whole model is built from.</p>
 </section>
 </div>
