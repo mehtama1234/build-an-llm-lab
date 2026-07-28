@@ -1,0 +1,247 @@
+<title>The mental model — one running vector</title>
+<style>
+:root{--bg:#0E1420;--bg2:#141D2C;--panel:#18212F;--ink:#EAEEF4;--soft:#B4BFD0;--dim:#8493A8;--faint:#5A6577;
+--line:rgba(150,170,205,.14);--accent:#4FA8B8;--amber:#E3A63A;--rose:#C6606A;--violet:#9B8CE0;
+--serif:"Iowan Old Style",Palatino,Georgia,serif;--sans:-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:17px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+p{color:var(--soft);margin:0 0 16px}b{color:var(--ink)}em{color:var(--ink);font-style:italic}
+.kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--serif);font-size:clamp(36px,7vw,58px);line-height:1.03;margin:14px 0 0;color:#fff;letter-spacing:-.02em}
+h2{font-family:var(--serif);font-size:28px;margin:0 0 10px;color:#fff;line-height:1.15}
+.dek{font-size:19px;color:var(--soft);margin-top:20px}
+section{padding:46px 0;border-top:1px solid var(--line)}
+.eye{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.lead{font-size:19px;color:#cfd8e6}
+.why{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 20px;margin:18px 0}
+.why h3{margin:0 0 6px;font-size:12.5px;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.why p{margin:0;font-size:15.5px;color:var(--soft)}
+.why.v{border-left-color:var(--violet)}.why.v h3{color:var(--violet)}
+ul.clean{list-style:none;padding:0;margin:16px 0}
+ul.clean li{position:relative;padding:10px 0 10px 26px;border-top:1px solid var(--line);color:var(--soft)}
+ul.clean li:before{content:"→";position:absolute;left:0;color:var(--accent);font-family:var(--mono)}
+ul.clean li b{color:#fff}
+.name{font-family:var(--mono);font-size:13px;color:var(--dim);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:14px 0}
+.name b{color:var(--soft)}
+
+/* running-vector diagram */
+.stream{position:relative;background:linear-gradient(180deg,#0c1220,#0a0f18);border:1px solid var(--line);border-radius:16px;padding:26px 22px;margin:20px 0}
+.stream:before{content:"";position:absolute;left:50%;top:26px;bottom:26px;width:2px;background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 30%,transparent));transform:translateX(-1px);opacity:.55}
+.snode{position:relative;z-index:1;background:var(--panel);border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:10px;padding:10px 16px;margin:0 auto;max-width:430px;text-align:center;font-size:14.5px;color:var(--ink)}
+.snode.start{border-color:var(--dim);color:var(--soft)}
+.snode.end{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--panel));color:#eaffff}
+.sadd{position:relative;z-index:1;text-align:center;font-family:var(--mono);font-size:12.5px;color:var(--accent);padding:9px 0}
+.sadd em{color:var(--soft);font-style:normal}
+.sadd.tf{color:var(--amber)}.sadd.tf em{color:var(--soft)}
+.sread{position:relative;z-index:1;text-align:center;font-family:var(--mono);font-size:13px;color:var(--violet);margin-top:8px}
+.srail{position:absolute;right:14px;top:0;bottom:0;width:150px;display:flex;align-items:center;pointer-events:none}
+.srail span{font-family:var(--mono);font-size:10.5px;color:var(--faint);line-height:1.5;border-left:2px dashed var(--faint);padding-left:8px}
+@media(max-width:620px){.srail{display:none}}
+
+/* two-panel move vs transform */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+@media(max-width:640px){.split{grid-template-columns:1fr}}
+.pan{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:18px}
+.pan .pt{font-family:var(--mono);font-size:12px;letter-spacing:.04em;text-transform:uppercase;margin-bottom:12px}
+.pan.mv .pt{color:var(--accent)}.pan.tf .pt{color:var(--amber)}
+.words{display:flex;justify-content:center;gap:8px;margin:10px 0}
+.wd{width:34px;height:44px;border-radius:7px;border:1px solid var(--line);background:var(--panel);display:flex;align-items:flex-end;justify-content:center;font-size:9px;color:var(--faint);padding-bottom:3px}
+.wd.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:#dff}
+.arcs{height:26px;position:relative;margin:-6px 0 2px}
+.pan .cap{font-size:13px;color:var(--dim);margin:6px 0 0}
+.col{width:40px;margin:0 auto;display:flex;flex-direction:column;gap:5px;align-items:center}
+.seg{width:100%;border-radius:5px;text-align:center;font-size:9px;font-family:var(--mono);padding:4px 0}
+.seg.a{background:color-mix(in srgb,var(--amber) 16%,var(--panel));border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);color:#f4d9a6}
+.seg.wide{width:135%;margin-left:-17.5%}
+
+/* feed-forward widen/bend/narrow */
+.ff{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;background:linear-gradient(180deg,#0c1220,#0a0f18);border:1px solid var(--line);border-radius:14px;padding:22px 16px;margin:18px 0}
+.ffb{border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-family:var(--mono);font-size:12px;background:var(--panel);color:var(--ink);text-align:center}
+.ffb.w{border-color:color-mix(in srgb,var(--amber) 40%,transparent);color:#f4d9a6}
+.ffa{color:var(--faint);font-family:var(--mono)}
+
+/* add vs replace */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+@media(max-width:640px){.cmp{grid-template-columns:1fr}}
+.cmp .c{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.cmp .ct{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.cmp .bad .ct{color:var(--rose)}.cmp .good .ct{color:var(--accent)}
+.chain{font-family:var(--mono);font-size:13px;color:var(--soft);line-height:1.9}
+.chain .x{color:var(--rose)}.chain .k{color:var(--accent)}
+
+/* stack */
+.stk{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:16px 0 6px}
+.stk .b{width:44px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--mono);color:var(--faint)}
+.aha{font-family:var(--serif);font-size:23px;line-height:1.45;color:#fff;border-left:3px solid var(--accent);padding-left:20px;margin:8px 0}
+.next{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:14px}
+.gloss{font-family:var(--mono);font-size:12.5px;color:var(--dim);line-height:1.95}
+.gloss b{color:var(--soft)}
+</style>
+<div class="wrap">
+<nav style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;padding:14px 0;border-bottom:1px solid rgba(150,170,205,.16);margin-bottom:4px"><a href="index.html" style="color:#4FA8B8;text-decoration:none;font-weight:700">🔤 The Lab</a><span style="color:#5A6577">· The mental model</span></nav>
+<header style="padding:66px 0 8px">
+  <div class="kick">Build-an-LLM · Lab · The mental model</div>
+  <h1>One running vector.</h1>
+  <p class="dek">Forget the tangle of boxes and arrows for a minute. Underneath, a language model is doing something you can actually hold in your head: it keeps one list of numbers for each word, and every part of the model does nothing but <b>add small changes to that list</b> until it's good enough to guess the next word. This page builds that picture slowly, in plain words — with the details that usually get skipped.</p>
+</header>
+
+<section>
+  <div class="eye">Start here</div>
+  <h2>The model has exactly one job</h2>
+  <p class="lead">Look at the words so far, and guess the next word. That's it.</p>
+  <p>Not translate, not reason, not hold a conversation — those all fall out of getting <em>extremely</em> good at this one guess, on a scale of billions of examples. Every piece we describe below earns its place in only one way: it makes that next guess a little better. So whenever a part seems complicated, ask the one question that cuts through it — <b>how does this help guess the next word?</b> — and it stops being arbitrary.</p>
+</section>
+
+<section>
+  <div class="eye">The thing that gets refined</div>
+  <h2>Each word becomes a list of numbers</h2>
+  <p>Before anything else happens, every word is turned into a list of numbers — a few hundred of them. That list is the word's <b>current description</b>. At the very start it only says two things: <em>what</em> the word is, and <em>where</em> it sits in the sentence.</p>
+  <p>Here is the whole trick of the model, stated once: it spends all its effort <b>improving that list</b>. By the time the model is done, the same list for the word <span class="mono">cat</span> will no longer just say "the word cat" — it will describe what <span class="mono">cat</span> <em>means in this exact sentence</em>: whose cat, doing what, mentioned how. The model is the process that carries the list from the first meaning to the second.</p>
+  <div class="name"><b>The real name:</b> that list of numbers is the word's <b>vector</b>. How many numbers are in it is the model's <b>width</b> (768 for the smallest GPT-2).</div>
+</section>
+
+<section>
+  <div class="eye">The idea most explanations skip</div>
+  <h2>Every step adds — it never replaces</h2>
+  <p>This is the key, so slow down here. Each step of the model does <b>not</b> throw away the word's list and build a fresh one. It takes the current list, works out a small set of changes, and <b>adds those changes on top</b> of what's already there.</p>
+  <p>Follow that all the way through and you get the single most useful picture of a transformer: there is <b>one list per word that runs unbroken from the start of the model to the end</b>, and every part of the model simply <em>reads</em> it and <em>adds</em> to it. Like this, for one word:</p>
+  <div class="stream">
+    <div class="srail"><span>the very first description can ride straight down to the bottom, untouched, unless a step deliberately cancels it</span></div>
+    <div class="snode start">list for “cat” — what it is, where it sits</div>
+    <div class="sadd">move · <b>attention</b> &nbsp;<em>+ what the other words offer</em></div>
+    <div class="snode">now bent by the sentence around it</div>
+    <div class="sadd tf">transform · <b>feed-forward</b> &nbsp;<em>+ what it works out on its own</em></div>
+    <div class="snode">refined a little</div>
+    <div class="sadd">move · <b>attention</b> &nbsp;<em>+ gather again, with better eyes</em></div>
+    <div class="sadd tf">transform · <b>feed-forward</b> &nbsp;<em>+ compute again</em></div>
+    <div class="snode">…this pair repeats, layer after layer…</div>
+    <div class="snode end">final list — a full description in context</div>
+    <div class="sread">↓ read off → guess the next word</div>
+  </div>
+  <p>Three things follow from "add, don't replace," and together they are much of why the model works at all:</p>
+  <ul class="clean">
+    <li><b>Nothing is lost by force.</b> The starting description can travel the whole way down untouched. Later steps only lose it if they actively add something that cancels it out — losing information becomes a <em>choice</em>, not an accident of passing through.</li>
+    <li><b>Each step has an easy job.</b> A step never has to rebuild the word from nothing. It only has to decide <em>what small thing to add</em>. Easy jobs are easy to learn.</li>
+    <li><b>The steps aren't fragile links in a chain.</b> They all pour into the same shared list, so order is forgiving — you can often remove a step entirely and the rest still works, because nothing downstream depended on that one step being there.</li>
+  </ul>
+  <div class="name"><b>The real name:</b> that shared, added-to list is the <b>residual stream</b> — "residual" because each step contributes a <em>residual</em>, a leftover change, instead of a replacement.</div>
+</section>
+
+<section>
+  <div class="eye">What the steps actually are</div>
+  <h2>Only two kinds of step, taking turns</h2>
+  <p>Everything happening to that running list is one of just two moves, alternating the whole way down:</p>
+  <div class="split">
+    <div class="pan mv">
+      <div class="pt">move · attention</div>
+      <div class="words"><span class="wd">the</span><span class="wd on">cat</span><span class="wd">sat</span><span class="wd">on</span></div>
+      <div class="cap">A word looks at the <b>other words</b> and pulls in a blend of whatever it finds useful. This is the <em>only</em> step where words see each other. It moves information <b>sideways, between words</b>. It barely does any math to it — it mostly just gathers and mixes.</div>
+    </div>
+    <div class="pan tf">
+      <div class="pt">transform · feed-forward</div>
+      <div class="col"><span class="seg">cat</span><span class="seg a wide">work on it</span><span class="seg">cat′</span></div>
+      <div class="cap">Each word is worked on <b>entirely on its own</b>, with no looking at other words at all. This is where the real <b>computing</b> happens — where a word's gathered-up description gets turned into something more useful.</div>
+    </div>
+  </div>
+  <p>They take turns: <b>gather</b> from the other words, then <b>process</b> on your own, then gather again, then process again. Said plainly: <b>attention is the model's only way for words to talk to each other; feed-forward is the model's only way to actually compute.</b> That's why you need both — one moves information, the other thinks about it. Neither can do the other's job.</p>
+</section>
+
+<section>
+  <div class="eye">Opening up the "compute" step</div>
+  <h2>Feed-forward: widen, bend, narrow</h2>
+  <p>Let's take apart the transform step, because it's where most of the model actually lives. It's three simple parts in a row:</p>
+  <div class="ff">
+    <div class="ffb">word list<br><span style="color:var(--faint)">~few hundred</span></div>
+    <div class="ffa">→ widen ×4 →</div>
+    <div class="ffb w">a much wider list<br>+ a bend on each number</div>
+    <div class="ffa">→ narrow →</div>
+    <div class="ffb">back to original size<br><span style="color:var(--faint)">(ready to add on)</span></div>
+  </div>
+  <p><b>Widen:</b> blow the list up to about four times as many numbers — room to check for many different patterns at once. <b>Bend:</b> push each number through a simple curve (roughly: let positive values through, squash negatives toward zero). <b>Narrow:</b> squeeze back down to the original size, so the result can be added onto the running list.</p>
+  <div class="why v">
+    <h3>Detail 1 — the bend is the whole point, not a flourish</h3>
+    <p>Widening and narrowing are both "straight-line" operations. And two straight-line steps in a row <b>always collapse into a single straight-line step</b> — you truly gain nothing by having two. The little bend in the middle is what breaks that collapse. It is the <em>only</em> reason stacking many layers buys you anything. Remove the bend, and a 96-layer model would be exactly as capable as a 1-layer model — no more.</p>
+  </div>
+  <div class="why v">
+    <h3>Detail 2 — most of the model is here, not in attention</h3>
+    <p>Attention gets the spotlight, but if you count the actual numbers the model learns, roughly <b>two-thirds of them sit in these widen/narrow steps</b>, not in attention. The bulk of what a model "knows" is stored in feed-forward.</p>
+  </div>
+  <div class="why v">
+    <h3>Detail 3 — what the wide middle is doing</h3>
+    <p>Think of each of those extra slots in the widened list as a tiny <b>detector</b>. It watches the word's description for one particular pattern; when it finds it, it switches on and adds its own specific contribution to the running list. There are far more patterns worth watching for than there are slots — so the detectors overlap and share duty, which is exactly why you usually <em>can't</em> point at one slot and say cleanly what it means.</p>
+  </div>
+</section>
+
+<section>
+  <div class="eye">Why "add, don't replace" really matters</div>
+  <h2>The reason is about how it learns</h2>
+  <p>We keep saying every step adds rather than replaces. Here's the deep reason — and it's about training, not the forward guess.</p>
+  <p>The model learns like this: after each guess, it gets told how <em>every one</em> of its numbers should change to make the guess a bit better. That correction has to travel <b>backwards</b> through every step — from the final guess all the way back to the very first step.</p>
+  <div class="cmp">
+    <div class="c bad">
+      <div class="ct">if each step replaced the list</div>
+      <div class="chain">correction<br><span class="x">× step × step × step …</span><br>→ shrinks toward <b>0</b></div>
+      <p class="cap" style="color:var(--dim);font-size:13px;margin-top:8px">Multiplying by many small amounts in a row crushes it. By the time it reaches the early steps, there's nothing left — so the early steps never learn. In a deep model, fatal.</p>
+    </div>
+    <div class="c good">
+      <div class="ct">if each step adds instead</div>
+      <div class="chain"><span class="k">a straight path skips each step's math</span><br>→ correction arrives <b>intact</b></div>
+      <p class="cap" style="color:var(--dim);font-size:13px;margin-top:8px">Because adding leaves an untouched path straight through, the correction reaches every step whole. Now even the earliest steps can learn.</p>
+    </div>
+  </div>
+  <p>That one choice — <b>add, don't replace</b> — is what makes a deep model trainable at all. We watched it happen for real in Session 6: push a list through 40 steps. <span style="color:var(--rose)">Replace each time</span> → the signal dies to zero, nothing learns. <span style="color:var(--amber)">Add each time</span> → it survives — but with nothing holding it back it balloons to millions. Which forces the last piece.</p>
+</section>
+
+<section>
+  <div class="eye">Keeping it steady</div>
+  <h2>Resizing before each step</h2>
+  <p>Adding at every step keeps the signal alive, but it also lets the numbers grow bigger and bigger as they pile up — and numbers that are too big make the next steps misbehave. So before each step reads the list, the model <b>resizes</b> it: shift and scale the numbers so they sit at a standard, predictable size.</p>
+  <div class="why">
+    <h3>The nuance people miss</h3>
+    <p>Right after resizing, the model is allowed to stretch the numbers back out however it likes. So resizing is <b>not</b> forcing the numbers into some fixed shape — it only keeps their overall <em>size</em> under control, while leaving the model free to shape them as it wants. The goal is <b>steadiness, not conformity.</b></p>
+  </div>
+  <ul class="clean">
+    <li><b>It looks only at that one word's own numbers</b> — never at the other words. That independence is why it works no matter how long the sentence is.</li>
+    <li><b>Where you put it matters.</b> Modern models resize only the <em>copy</em> that feeds into each step, and never touch the running list itself — so the clean, add-only path stays clean from top to bottom.</li>
+  </ul>
+  <div class="name"><b>The real name:</b> this resizing is <b>normalization</b> (you'll see "LayerNorm" / "RMSNorm").</div>
+</section>
+
+<section>
+  <div class="eye">Doing it many times</div>
+  <h2>Stacking — refinement, not repetition</h2>
+  <p>Now take the whole bundle — move, transform, add, resize — and stack it many times. GPT-2 stacks it 12 to 48 times; larger models, more. Three things to get right, because each is a common misread:</p>
+  <div class="stk">
+    <span class="b" style="background:color-mix(in srgb,var(--accent) 10%,var(--panel));border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)">L1</span>
+    <span class="b" style="background:color-mix(in srgb,var(--accent) 18%,var(--panel));border:1px solid color-mix(in srgb,var(--accent) 38%,transparent)">L2</span>
+    <span class="b" style="background:color-mix(in srgb,var(--accent) 26%,var(--panel));border:1px solid color-mix(in srgb,var(--accent) 46%,transparent)">L3</span>
+    <span class="b" style="background:color-mix(in srgb,var(--amber) 16%,var(--panel));border:1px solid color-mix(in srgb,var(--amber) 40%,transparent);color:#f4d9a6">L4</span>
+    <span class="b" style="background:color-mix(in srgb,var(--amber) 22%,var(--panel));border:1px solid color-mix(in srgb,var(--amber) 46%,transparent);color:#f4d9a6">L5</span>
+    <span class="b" style="background:color-mix(in srgb,var(--violet) 20%,var(--panel));border:1px solid color-mix(in srgb,var(--violet) 44%,transparent);color:#cfc7f0">…</span>
+    <span class="b" style="background:color-mix(in srgb,var(--violet) 28%,var(--panel));border:1px solid color-mix(in srgb,var(--violet) 50%,transparent);color:#cfc7f0">L12</span>
+  </div>
+  <ul class="clean">
+    <li><b>The stacked copies are not the same copy reused.</b> Each layer has its <em>own</em> separate numbers. "Twelve layers" means twelve independent sets of numbers, each free to take on a different job. (Older models reused one piece over and over — transformers do not.)</li>
+    <li><b>Depth is refinement, not repetition.</b> Because the "move" step runs fresh at every layer, a <em>later</em> layer can look across the words using distinctions an <em>earlier</em> layer already worked out. So it goes: gather with basic eyes → understand a little → gather again with sharper eyes → understand more. Each layer re-reads the sentence, better informed than the last.</li>
+    <li><b>All words go through a layer together.</b> Every word is processed at the same time, not one after another. The depth is in the stack of layers — not in marching along the sentence.</li>
+  </ul>
+</section>
+
+<section>
+  <div class="eye">Getting the answer out</div>
+  <h2>Reading the last list as a guess</h2>
+  <p>After the final layer, each word's list has become a rich description of that word in this exact sentence. To guess what comes next, the model takes the list belonging to the <b>last</b> word, and scores <em>every possible next word</em> against it. Turn those scores into percentages, and that's the guess. Pick one, stick it on the end, and run the entire thing again for the word after that.</p>
+</section>
+
+<section>
+  <div class="eye">The whole thing, once, in plain words</div>
+  <p class="aha">Each word is a running list of numbers. Attention lets words hand information to each other; feed-forward lets each word be computed on. Every step <em>adds</em> its result instead of replacing — so nothing is lost, and the model can actually learn. Resizing keeps the numbers steady. This repeats across many independent layers, each refining the lists a little more. At the end, the last word's list is read off as a guess at the next word.</p>
+  <p>And the part worth sitting with: none of the grammar, meaning, or apparent reasoning is <em>built in</em>. It's simply what the numbers settle into after being nudged, billions of times, toward one goal — <b>guess the next word.</b></p>
+  <div class="why">
+    <h3>The plain words → the real names, if you go read more</h3>
+    <p class="gloss">the running list = <b>the vector / residual stream</b> · move = <b>attention</b> · transform = <b>feed-forward network</b> · the bend = <b>the activation (GELU)</b> · add, don't replace = <b>residual (skip) connections</b> · the backward correction = <b>the gradient</b> · resizing = <b>normalization</b> · the model's numbers = <b>parameters / weights</b> · width of the list = <b>d_model</b>.</p>
+  </div>
+  <p class="next">This capstone ties together Sessions 1–6 of the lab. If you want to see each piece as a real, running computation, start at <b>Session 1</b> and walk forward — this page is the map that holds them together.</p>
+</section>
+</div>

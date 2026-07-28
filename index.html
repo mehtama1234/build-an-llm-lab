@@ -14,6 +14,8 @@ h1{font-family:var(--serif);font-size:clamp(34px,6vw,56px);line-height:1.04;marg
 .lcard h3{font-family:var(--serif);font-size:22px;margin:5px 0 4px;color:#fff}.lcard p{margin:0;font-size:14.5px;color:var(--dim)}
 .go{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap}
 .soon{opacity:.5;border-style:dashed}.soon .go{color:var(--faint)}
+.feat{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 9%,var(--bg2)),var(--bg2))}
+.feat h3{color:#eaffff}.feat .lnum{color:var(--accent)}
 footer{color:var(--faint);font-family:var(--mono);font-size:12px;padding:40px 0 60px;border-top:1px solid var(--line);margin-top:40px}
 </style>
 <div class="wrap">
@@ -22,6 +24,10 @@ footer{color:var(--faint);font-family:var(--mono);font-size:12px;padding:40px 0 
   <h1>The Visual Lab.</h1>
   <p class="dek">Learning how a language model works, one small piece at a time — concept, the big-picture <em>why</em>, and the real thing running, shown in depth. Every number on these pages is genuine output, not a diagram.</p>
 </header>
+<div class="eye">Start with the map</div>
+<a class="lcard feat" href="mental-model.html"><div class="lg">🗺️</div>
+  <div><div class="lnum">Read this first · or after Session 6</div><h3>The mental model</h3><p>How to actually understand the whole thing — a transformer in plain words, as one running vector per word that every step adds to.</p></div>
+  <span class="go">Open →</span></a>
 <div class="eye">Session 1 · The doorway · tokenization</div><a class="lcard" href="01-tokenization.html"><div class="lg">🔤</div>
           <div><div class="lnum">Session 1 · part 1</div><h3>Text becomes numbers</h3><p>What tokenization is, and the quirks it quietly causes.</p></div>
           <span class="go">Open →</span></a><a class="lcard" href="01b-domains.html"><div class="lg">🌍</div>
