@@ -1,0 +1,97 @@
+<title>Session 2 — Numbers become meaning</title>
+<style>
+:root{--bg:#0E1420;--bg2:#141D2C;--panel:#18212F;--ink:#EAEEF4;--soft:#B4BFD0;--dim:#8493A8;--faint:#5A6577;
+--line:rgba(150,170,205,.14);--accent:#4FA8B8;--serif:"Iowan Old Style",Palatino,Georgia,serif;
+--sans:-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.7;font-size:17px}
+.wrap{max-width:840px;margin:0 auto;padding:0 24px}
+p{color:var(--soft);margin:0 0 16px}b{color:var(--ink)}em{color:var(--ink);font-style:italic}
+.kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--serif);font-size:clamp(34px,6vw,54px);line-height:1.05;margin:14px 0 0;color:#fff;letter-spacing:-.02em}
+h2{font-family:var(--serif);font-size:27px;margin:0 0 8px;color:#fff}
+.dek{font-size:19px;color:var(--soft);margin-top:18px;max-width:60ch}
+section{padding:44px 0;border-top:1px solid var(--line)}
+.eye{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.why{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 20px;margin:16px 0}
+.why h3{margin:0 0 6px;font-size:13px;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.why p{margin:0;font-size:15px;color:var(--soft)}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-top:14px}
+.mini{font-family:var(--mono);font-size:12px;color:var(--faint);margin-top:10px}
+.idline{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:14px}
+.idbox{background:var(--panel);border:1px solid var(--line2,var(--line));border-radius:7px;padding:5px 11px;color:var(--ink)}
+.arrow{color:var(--faint)}
+.vc{display:inline-block;font-family:var(--mono);font-size:12.5px;background:color-mix(in srgb,var(--accent) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:5px;padding:4px 8px;margin:3px}
+.vc.more{background:transparent;border-style:dashed;color:var(--faint)}
+.simrow{display:grid;grid-template-columns:150px 1fr 44px;gap:12px;align-items:center;margin:7px 0;font-family:var(--mono);font-size:13.5px}
+.sp{color:var(--soft)}.sbar{height:14px;background:rgba(150,170,205,.08);border-radius:5px;overflow:hidden}
+.sbar span{display:block;height:100%;border-radius:5px}.sv{text-align:right}
+.map{position:relative;width:100%;padding-bottom:74%;background:
+  radial-gradient(circle at 50% 50%,rgba(79,168,184,.05),transparent 70%),var(--bg);
+  border:1px solid var(--line);border-radius:14px;margin-top:14px;overflow:hidden}
+.map::before,.map::after{content:"";position:absolute;background:rgba(150,170,205,.10)}
+.map::before{left:50%;top:0;bottom:0;width:1px}.map::after{top:50%;left:0;right:0;height:1px}
+.pt{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px}
+.dot{width:9px;height:9px;border-radius:50%}
+.pl{font-family:var(--mono);font-size:12px;white-space:nowrap}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--soft)}
+.lg{display:flex;align-items:center;gap:6px}.ld{width:9px;height:9px;border-radius:50%;display:inline-block}
+.anrow{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;padding:8px 0;border-top:1px dashed var(--line);font-family:var(--mono);font-size:14px}
+.anrow:first-child{border-top:none}.ae{color:var(--soft)}.aeq{color:var(--faint)}
+.ar{color:#fff;background:color-mix(in srgb,var(--accent) 20%,transparent);border:1px solid var(--accent);border-radius:6px;padding:2px 10px;font-weight:600}
+.asc{color:var(--faint);font-size:12px}
+.aha{font-family:var(--serif);font-size:22px;line-height:1.4;color:#fff;border-left:3px solid var(--accent);padding-left:18px;margin:8px 0}
+.next{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:10px}
+@media(max-width:600px){.simrow{grid-template-columns:1fr}.anrow{grid-template-columns:1fr auto}}
+</style>
+<div class="wrap">
+<nav style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;padding:14px 0;border-bottom:1px solid rgba(150,170,205,.16);margin-bottom:4px"><a href="index.html" style="color:#4FA8B8;text-decoration:none;font-weight:700">🔤 The Lab</a><span style="color:#5A6577">· Session 2</span><span style="margin-left:auto;display:flex;gap:16px"><a href="02-embeddings.html" style="color:#fff;font-weight:600;text-decoration:none">Numbers become meaning</a></span></nav>
+<header style="padding:64px 0 8px">
+  <div class="kick">Build-an-LLM · Lab · Session 2 of 10</div>
+  <h1>Numbers become meaning.</h1>
+  <p class="dek">Session 1 turned text into token IDs. But an ID like <span class="mono">9379</span> is an <em>arbitrary label</em> — it isn't "close to" <span class="mono">262</span> in any way that means anything. So the next step gives every token a <b>vector</b> — a position in space — where <b>meaning becomes geometry</b>: similar words point the same way. Every number below is from real 50-dimensional word vectors.</p>
+</header>
+
+<section>
+  <div class="eye">The idea, in plain words</div>
+  <h2>Each id is looked up into a vector</h2>
+  <p>The model holds an <em>embedding table</em>: one learned vector per token. To use a token, you take its id and grab that row — a list of numbers. Here's the real vector for <b>king</b>:</p>
+  <div class="card">
+    <div class="idline"><span class="idbox">"king"</span><span class="arrow">→ id</span><span class="idbox">691</span><span class="arrow">→ row 691 of the table →</span></div>
+    <div style="margin-top:12px"><span class='vc'>0.5</span><span class='vc'>0.69</span><span class='vc'>-0.6</span><span class='vc'>-0.02</span><span class='vc'>0.6</span><span class='vc'>-0.13</span><span class='vc'>-0.09</span><span class='vc'>0.47</span><span class='vc more'>… +42</span></div>
+    <p class="mini">50 numbers (GPT-2 uses 768). On their own they're meaningless — the meaning is in <em>where this vector points relative to others</em>.</p>
+  </div>
+  <div class="why"><h3>Why not just use the id?</h3><p>An id is a name, not a place. <span class="mono">cat</span>=id&nbsp;A and <span class="mono">dog</span>=id&nbsp;B tells the model nothing about them being alike. A vector puts them somewhere — and "alike" becomes "nearby." That geometry is the only thing the next stage (attention) can compute on.</p></div>
+</section>
+
+<section>
+  <div class="eye">Watch it happen</div>
+  <h2>Similar words point the same way</h2>
+  <p>Measure the angle between two vectors (<em>cosine similarity</em>: 1 = same direction, 0 = unrelated). Real numbers from the vectors — related words score high, unrelated words low:</p>
+  <div class="card"><div class='simrow'><span class='sp'>king · queen</span><span class='sbar'><span style='width:78%;background:#6FB98A'></span></span><span class='sv' style='color:#6FB98A'>0.78</span></div><div class='simrow'><span class='sp'>king · man</span><span class='sbar'><span style='width:53%;background:#E3A63A'></span></span><span class='sv' style='color:#E3A63A'>0.53</span></div><div class='simrow'><span class='sp'>king · banana</span><span class='sbar'><span style='width:22%;background:#E76A80'></span></span><span class='sv' style='color:#E76A80'>0.22</span></div><div class='simrow'><span class='sp'>cat · dog</span><span class='sbar'><span style='width:92%;background:#6FB98A'></span></span><span class='sv' style='color:#6FB98A'>0.92</span></div><div class='simrow'><span class='sp'>cat · car</span><span class='sbar'><span style='width:36%;background:#E76A80'></span></span><span class='sv' style='color:#E76A80'>0.36</span></div><div class='simrow'><span class='sp'>three · four</span><span class='sbar'><span style='width:99%;background:#6FB98A'></span></span><span class='sv' style='color:#6FB98A'>0.99</span></div><div class='simrow'><span class='sp'>paris · france</span><span class='sbar'><span style='width:80%;background:#6FB98A'></span></span><span class='sv' style='color:#6FB98A'>0.80</span></div><div class='simrow'><span class='sp'>happy · sad</span><span class='sbar'><span style='width:69%;background:#E3A63A'></span></span><span class='sv' style='color:#E3A63A'>0.69</span></div><div class='simrow'><span class='sp'>happy · joyful</span><span class='sbar'><span style='width:56%;background:#E3A63A'></span></span><span class='sv' style='color:#E3A63A'>0.56</span></div></div>
+  <p class="mini"><b>cat·dog 0.92</b> and <b>three·four 0.99</b> — nearly the same direction. <b>king·banana 0.22</b> — near-perpendicular. The model never told them these facts; the geometry learned them.</p>
+</section>
+
+<section>
+  <div class="eye">The big picture — see it</div>
+  <h2>Meaning has a shape</h2>
+  <p>Take 20 words, squash their 50-D vectors down to 2-D (so we can look), and plot them. Nobody labeled these groups — the words land near others that <em>mean</em> something similar:</p>
+  <div class="map"><span class='pt' style='left:21.8%;top:24.9%'><span class='dot' style='background:#E3A63A;box-shadow:0 0 10px #E3A63A88'></span><span class='pl' style='color:#E3A63A'>king</span></span><span class='pt' style='left:13.7%;top:25.6%'><span class='dot' style='background:#E3A63A;box-shadow:0 0 10px #E3A63A88'></span><span class='pl' style='color:#E3A63A'>queen</span></span><span class='pt' style='left:23.8%;top:15.6%'><span class='dot' style='background:#E3A63A;box-shadow:0 0 10px #E3A63A88'></span><span class='pl' style='color:#E3A63A'>prince</span></span><span class='pt' style='left:8.0%;top:20.5%'><span class='dot' style='background:#E3A63A;box-shadow:0 0 10px #E3A63A88'></span><span class='pl' style='color:#E3A63A'>princess</span></span><span class='pt' style='left:13.0%;top:8.0%'><span class='dot' style='background:#E3A63A;box-shadow:0 0 10px #E3A63A88'></span><span class='pl' style='color:#E3A63A'>throne</span></span><span class='pt' style='left:22.5%;top:84.0%'><span class='dot' style='background:#6FB98A;box-shadow:0 0 10px #6FB98A88'></span><span class='pl' style='color:#6FB98A'>cat</span></span><span class='pt' style='left:26.5%;top:92.0%'><span class='dot' style='background:#6FB98A;box-shadow:0 0 10px #6FB98A88'></span><span class='pl' style='color:#6FB98A'>dog</span></span><span class='pt' style='left:28.1%;top:76.5%'><span class='dot' style='background:#6FB98A;box-shadow:0 0 10px #6FB98A88'></span><span class='pl' style='color:#6FB98A'>horse</span></span><span class='pt' style='left:41.1%;top:77.6%'><span class='dot' style='background:#6FB98A;box-shadow:0 0 10px #6FB98A88'></span><span class='pl' style='color:#6FB98A'>cow</span></span><span class='pt' style='left:19.9%;top:67.0%'><span class='dot' style='background:#6FB98A;box-shadow:0 0 10px #6FB98A88'></span><span class='pl' style='color:#6FB98A'>lion</span></span><span class='pt' style='left:51.1%;top:83.1%'><span class='dot' style='background:#6FB98A;box-shadow:0 0 10px #6FB98A88'></span><span class='pl' style='color:#6FB98A'>tiger</span></span><span class='pt' style='left:69.2%;top:60.0%'><span class='dot' style='background:#4FA8B8;box-shadow:0 0 10px #4FA8B888'></span><span class='pl' style='color:#4FA8B8'>one</span></span><span class='pt' style='left:89.0%;top:56.6%'><span class='dot' style='background:#4FA8B8;box-shadow:0 0 10px #4FA8B888'></span><span class='pl' style='color:#4FA8B8'>two</span></span><span class='pt' style='left:89.1%;top:58.3%'><span class='dot' style='background:#4FA8B8;box-shadow:0 0 10px #4FA8B888'></span><span class='pl' style='color:#4FA8B8'>three</span></span><span class='pt' style='left:90.4%;top:60.2%'><span class='dot' style='background:#4FA8B8;box-shadow:0 0 10px #4FA8B888'></span><span class='pl' style='color:#4FA8B8'>four</span></span><span class='pt' style='left:91.1%;top:59.5%'><span class='dot' style='background:#4FA8B8;box-shadow:0 0 10px #4FA8B888'></span><span class='pl' style='color:#4FA8B8'>five</span></span><span class='pt' style='left:72.3%;top:14.0%'><span class='dot' style='background:#9B8CE0;box-shadow:0 0 10px #9B8CE088'></span><span class='pl' style='color:#9B8CE0'>france</span></span><span class='pt' style='left:87.9%;top:17.9%'><span class='dot' style='background:#9B8CE0;box-shadow:0 0 10px #9B8CE088'></span><span class='pl' style='color:#9B8CE0'>germany</span></span><span class='pt' style='left:91.7%;top:33.9%'><span class='dot' style='background:#9B8CE0;box-shadow:0 0 10px #9B8CE088'></span><span class='pl' style='color:#9B8CE0'>japan</span></span><span class='pt' style='left:92.0%;top:30.9%'><span class='dot' style='background:#9B8CE0;box-shadow:0 0 10px #9B8CE088'></span><span class='pl' style='color:#9B8CE0'>china</span></span><span class='pt' style='left:76.0%;top:39.1%'><span class='dot' style='background:#9B8CE0;box-shadow:0 0 10px #9B8CE088'></span><span class='pl' style='color:#9B8CE0'>india</span></span></div>
+  <div class="legend"><span class='lg'><span class='ld' style='background:#E3A63A'></span>royalty</span><span class='lg'><span class='ld' style='background:#6FB98A'></span>animals</span><span class='lg'><span class='ld' style='background:#4FA8B8'></span>numbers</span><span class='lg'><span class='ld' style='background:#9B8CE0'></span>countries</span></div>
+  <p class="mini">Real 50→2-D projection (PCA). Royalty, animals, numbers, countries each pull into their own region — meaning became a <em>map</em>.</p>
+</section>
+
+<section>
+  <div class="eye">The part that feels like magic</div>
+  <h2>Relationships are directions you can do math on</h2>
+  <p>If meaning is geometry, then <em>relationships</em> are consistent directions — and you can add and subtract them. The direction from <span class="mono">man</span>→<span class="mono">woman</span> is the same move as <span class="mono">king</span>→<span class="mono">queen</span>. Real vector arithmetic, nearest word to the result:</p>
+  <div class="card"><div class='anrow'><span class='ae'>king − man + woman</span><span class='aeq'>≈</span><span class='ar'>queen</span><span class='asc'>0.86</span></div><div class='anrow'><span class='ae'>paris − france + italy</span><span class='aeq'>≈</span><span class='ar'>rome</span><span class='asc'>0.84</span></div><div class='anrow'><span class='ae'>walking − walk + swim</span><span class='aeq'>≈</span><span class='ar'>swimming</span><span class='asc'>0.81</span></div><div class='anrow'><span class='ae'>bigger − big + small</span><span class='aeq'>≈</span><span class='ar'>larger</span><span class='asc'>0.90</span></div></div>
+  <p class="mini">Each result is the real nearest vector to the computed point (with its cosine). The "gender" direction, the "capital-of" direction, the "-er/comparative" direction — all just vectors.</p>
+</section>
+
+<section>
+  <div class="eye">The one-line aha</div>
+  <p class="aha">An id is a name; an embedding is a <em>place</em>. Once every token is a point in space, "similar" becomes "nearby" and "relationship" becomes "direction" — and that geometry is what the whole model computes on.</p>
+  <p class="next">Connects to → your 🔤 <b>From text to vectors</b> module · Raschka <b>ch02</b> (embeddings).<br>
+  Next session → <b>Where am I?</b>: position gets injected, because a bag of vectors has no order yet — then attention lets these vectors <em>read each other</em>.</p>
+</section>
+</div>
