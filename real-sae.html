@@ -1,0 +1,182 @@
+<title>Unpacking a neuron's many meanings</title>
+<style>
+:root{--bg:#0E1420;--bg2:#141D2C;--panel:#18212F;--ink:#EAEEF4;--soft:#B4BFD0;--dim:#8493A8;--faint:#5A6577;
+--line:rgba(150,170,205,.14);--accent:#4FA8B8;--amber:#E3A63A;--rose:#C6606A;--green:#6FBF8B;
+--serif:"Iowan Old Style",Palatino,Georgia,serif;--sans:-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:17px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+p{color:var(--soft);margin:0 0 16px}b{color:var(--ink)}em{color:var(--ink);font-style:italic}
+.kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--serif);font-size:clamp(32px,6vw,50px);line-height:1.05;margin:14px 0 0;color:#fff;letter-spacing:-.02em}
+h2{font-family:var(--serif);font-size:27px;margin:0 0 8px;color:#fff}
+.dek{font-size:19px;color:var(--soft);margin-top:18px}
+section{padding:44px 0;border-top:1px solid var(--line)}
+.eye{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.claim{font-family:var(--serif);font-size:21px;color:#fff;line-height:1.35;margin:0 0 4px}
+.why{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 20px;margin:18px 0}
+.why h3{margin:0 0 6px;font-size:12.5px;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}.why p{margin:0;font-size:15.5px;color:var(--soft)}
+.mini{font-family:var(--mono);font-size:12px;color:var(--faint);margin-top:10px}
+.big{display:flex;gap:16px;flex-wrap:wrap;margin:14px 0}
+.stat{flex:1;min-width:120px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+.stat .n{font-family:var(--serif);font-size:34px;line-height:1;color:#fff}
+.stat .l{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-top:6px}
+.stat.good .n{color:var(--accent)}
+.fcard{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:10px 0}
+.fcard.raw{border-color:rgba(198,96,106,.3)}
+.fh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.fid{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.fl{font-family:var(--serif);font-size:17px;color:var(--accent)}
+.fcard.raw .fl{color:var(--rose)}
+.ff{font-family:var(--mono);font-size:11px;color:var(--faint);margin-left:auto}
+.cxs{display:flex;flex-direction:column;gap:3px}
+.cx{display:flex;align-items:baseline;gap:2px;font-family:var(--mono);font-size:12.5px;background:#0b111b;border-radius:5px;padding:4px 8px}
+.cxpre{color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;text-align:right;direction:rtl}
+.cxtok{color:var(--accent);background:rgba(79,168,184,.14);border-radius:3px;padding:0 4px;font-weight:600;white-space:pre}
+.fcard.raw .cxtok{color:var(--rose);background:rgba(198,96,106,.14)}
+.cxa{color:var(--faint);width:34px;text-align:right;flex:0 0 auto}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:640px){.cols{grid-template-columns:1fr}}
+.aha{font-family:var(--serif);font-size:22px;line-height:1.42;color:#fff;border-left:3px solid var(--accent);padding-left:18px;margin:8px 0}
+.next{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:12px}
+ul.clean{list-style:none;padding:0;margin:16px 0}
+ul.clean li{position:relative;padding:10px 0 10px 26px;border-top:1px solid var(--line);color:var(--soft)}
+ul.clean li:before{content:"→";position:absolute;left:0;color:var(--accent);font-family:var(--mono)}ul.clean li b{color:#fff}
+</style>
+<div class="wrap">
+<nav style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;padding:14px 0;border-bottom:1px solid rgba(150,170,205,.16);margin-bottom:4px"><a href="index.html" style="color:#4FA8B8;text-decoration:none;font-weight:700">🔤 The Lab</a><span style="color:#5A6577">· Real-model experiments · Unpacking a neuron&#x27;s many meanings</span></nav>
+<header style="padding:64px 0 8px">
+  <div class="kick">Build-an-LLM · Lab · Real-model experiments · #4</div>
+  <h1>Unpacking a neuron's many meanings.</h1>
+  <p class="dek">Last time we hit a wall: a single neuron fires for a jumble of unrelated things, because the model packs far more ideas than it has neurons (<em>superposition</em>). Reading it directly is hopeless. Here we run the actual tool interpretability teams built to get around this — a <b>sparse dictionary</b> — on real GPT-2, and watch its tangled activations come apart into features you can name.</p>
+</header>
+
+<section>
+  <div class="eye">The idea</div>
+  <h2>Give it thousands of slots, but only let a few switch on</h2>
+  <p>The model's working memory at each word is a list of 768 numbers (the “residual stream”). Those 768 numbers carry many overlapping ideas at once. The trick: learn a much <b>wider</b> vocabulary — 4,096 candidate <em>features</em> — but with a hard rule that <b>only 32 may be active for any one word</b>. Then train those features for one job: <b>add up the 32 active ones and rebuild the original 768 numbers.</b></p>
+  <p>Why does that force meaning apart? If only 32 slots can ever be on, the cheapest way to reconstruct <em>everything</em> the model says is to make each slot stand for a distinct, recurring pattern — a specific word, a kind of word, a bit of grammar. Sparsity is the pressure that turns a blurry mix into a list of separate things. Nothing tells it <em>what</em> the features should be; it discovers them from the model's own activations.</p>
+</section>
+
+<section>
+  <div class="eye">The run — real GPT-2, real training</div>
+  <p class="claim">We collected GPT-2's residual stream at layer 6 over 79,248 words of text, then trained the sparse dictionary from scratch to reconstruct it.</p>
+  <div class="big">
+    <div class="stat good"><div class="n">90%</div><div class="l">of the variance rebuilt<br>from just 32 active features</div></div>
+    <div class="stat"><div class="n">32</div><div class="l">features on per word<br>(out of 4,096)</div></div>
+    <div class="stat"><div class="n">3,147</div><div class="l">features that learned<br>to fire (949 stayed dead)</div></div>
+  </div>
+  <p class="mini">32 live knobs out of 4,096, and they still rebuild 90% of a 768-number vector — the representation really was compressible into a few active pieces. Now the point: are those pieces <em>readable</em>?</p>
+</section>
+
+<section>
+  <div class="eye">The payoff — features that learned grammar</div>
+  <p class="claim">The best features didn't latch onto a single word — they learned a whole <em>class</em>. Here are four, shown by the contexts in the text that switch them on hardest.</p>
+  <p>(Highlighted word = where the feature fired; the text before it is the context. Read a few — the feature is firing on a <em>role</em>, filled by many different words.)</p>
+  <div class="fcard"><div class="fh"><span class="fid">feature #2311</span><span class="fl">Verbs after “be/been” (passive &amp; perfect)</span><span class="ff">fires on 1.35% of tokens</span></div><div class="cxs"><div class="cx"><span class="cxpre">…
+Third Citizen:
+We have been</span><span class="cxtok"> called</span><span class="cxa">12.7</span></div><div class="cx"><span class="cxpre">… apish courtesy,
+I must be</span><span class="cxtok"> held</span><span class="cxa">12.1</span></div><div class="cx"><span class="cxpre">…INIUS:
+When we were</span><span class="cxtok"> chosen</span><span class="cxa">12.0</span></div><div class="cx"><span class="cxpre">… what, what!
+I shall be</span><span class="cxtok"> loved</span><span class="cxa">11.8</span></div><div class="cx"><span class="cxpre">… mourn you for him: let him be</span><span class="cxtok"> regarded</span><span class="cxa">11.8</span></div><div class="cx"><span class="cxpre">… move
+thee, I have been</span><span class="cxtok"> blown</span><span class="cxa">11.7</span></div></div></div><div class="fcard"><div class="fh"><span class="fid">feature #2861</span><span class="fl">Emotion &amp; character adjectives</span><span class="ff">fires on 3.08% of tokens</span></div><div class="cxs"><div class="cx"><span class="cxpre">… since,
+Stabb&#x27;d in my</span><span class="cxtok"> angry</span><span class="cxa">12.9</span></div><div class="cx"><span class="cxpre">…
+Methought I saw a thousand</span><span class="cxtok"> fearful</span><span class="cxa">12.8</span></div><div class="cx"><span class="cxpre">… termed so.
+Moreover, urge his</span><span class="cxtok"> hateful</span><span class="cxa">12.6</span></div><div class="cx"><span class="cxpre">…
+And cry &#x27;O Clarence, my</span><span class="cxtok"> unhappy</span><span class="cxa">12.5</span></div><div class="cx"><span class="cxpre">…ose bright out-shining beams thy</span><span class="cxtok"> cloudy</span><span class="cxa">12.5</span></div><div class="cx"><span class="cxpre">… I go alone,
+Like to a</span><span class="cxtok"> lonely</span><span class="cxa">12.4</span></div></div></div><div class="fcard"><div class="fh"><span class="fid">feature #708</span><span class="fl">Abstract nouns — events &amp; changes</span><span class="ff">fires on 1.77% of tokens</span></div><div class="cxs"><div class="cx"><span class="cxpre">… of state
+More than you doubt the</span><span class="cxtok"> change</span><span class="cxa">7.5</span></div><div class="cx"><span class="cxpre">…Not what is dangerous present, but the</span><span class="cxtok"> loss</span><span class="cxa">7.4</span></div><div class="cx"><span class="cxpre">… your father then in France,
+His</span><span class="cxtok"> resemblance</span><span class="cxa">7.3</span></div><div class="cx"><span class="cxpre">… our request;
+And pardon us the</span><span class="cxtok"> interruption</span><span class="cxa">7.3</span></div><div class="cx"><span class="cxpre">… by him, you cannot--the great</span><span class="cxtok"> danger</span><span class="cxa">6.8</span></div><div class="cx"><span class="cxpre">…OUCESTER:
+What!</span><span class="cxtok"> threat</span><span class="cxa">6.8</span></div></div></div><div class="fcard"><div class="fh"><span class="fid">feature #2785</span><span class="fl">The first word after a line break</span><span class="ff">fires on 2.96% of tokens</span></div><div class="cxs"><div class="cx"><span class="cxpre">… grudge were lodged between us;
+</span><span class="cxtok">Of</span><span class="cxa">11.4</span></div><div class="cx"><span class="cxpre">… dogg&#x27;d with curses;
+Wh</span><span class="cxtok">ose</span><span class="cxa">9.7</span></div><div class="cx"><span class="cxpre">…itating with two deep divines;
+</span><span class="cxtok">Not</span><span class="cxa">9.6</span></div><div class="cx"><span class="cxpre">… shall mingle tears with smiles,
+</span><span class="cxtok">Where</span><span class="cxa">9.6</span></div><div class="cx"><span class="cxpre">… noise of waters in mine ears!
+</span><span class="cxtok">What</span><span class="cxa">9.1</span></div><div class="cx"><span class="cxpre">… not equals Edward&#x27;s moiety?
+</span><span class="cxtok">On</span><span class="cxa">8.9</span></div></div></div>
+  <div class="mini">Look at #2311: it fires on the verb right after “be” or “been” — <em>called, held, chosen, thrown</em> — i.e. it detects the <b>passive/perfect verb slot</b>, not any one word. And #2785 fires on whatever word <em>starts a new line</em>. Nobody defined these classes; the dictionary carved them out on its own.</div>
+</section>
+
+<section>
+  <div class="eye">It also cleanly split off the small stuff</div>
+  <p class="claim">Other features locked onto exactly one thing — a punctuation mark or a single common word — and fire on essentially nothing else.</p>
+  <div class="cols"><div class="fcard"><div class="fh"><span class="fid">feature #4047</span><span class="fl">The comma</span><span class="ff">fires on 6.56% of tokens</span></div><div class="cxs"><div class="cx"><span class="cxpre">…SICINIUS:
+Yes</span><span class="cxtok">,</span><span class="cxa">10.9</span></div><div class="cx"><span class="cxpre">….
+
+Messenger:
+Yes</span><span class="cxtok">,</span><span class="cxa">10.8</span></div><div class="cx"><span class="cxpre">…GLOUCESTER:
+Yes</span><span class="cxtok">,</span><span class="cxa">10.6</span></div><div class="cx"><span class="cxpre">…Good ladies, let&#x27;s go. Yes</span><span class="cxtok">,</span><span class="cxa">10.0</span></div><div class="cx"><span class="cxpre">…
+I have the letter here; yes</span><span class="cxtok">,</span><span class="cxa">10.0</span></div><div class="cx"><span class="cxpre">…That ever lived.
+Would you imagine</span><span class="cxtok">,</span><span class="cxa">9.9</span></div></div></div><div class="fcard"><div class="fh"><span class="fid">feature #3958</span><span class="fl">The question mark</span><span class="ff">fires on 3.94% of tokens</span></div><div class="cxs"><div class="cx"><span class="cxpre">…, sir, what answer made the belly</span><span class="cxtok">?</span><span class="cxa">9.0</span></div><div class="cx"><span class="cxpre">… the people do with these bald tribunes</span><span class="cxtok">?</span><span class="cxa">8.4</span></div><div class="cx"><span class="cxpre">…ABETH:
+How fares the prince</span><span class="cxtok">?</span><span class="cxa">8.2</span></div><div class="cx"><span class="cxpre">…land! dost thou mean the crown</span><span class="cxtok">?</span><span class="cxa">7.9</span></div><div class="cx"><span class="cxpre">…
+Why then should I be consul</span><span class="cxtok">?</span><span class="cxa">7.8</span></div><div class="cx"><span class="cxpre">… you, think you he&#x27;ll carry Rome</span><span class="cxtok">?</span><span class="cxa">7.8</span></div></div></div><div class="fcard"><div class="fh"><span class="fid">feature #1225</span><span class="fl">The word “the”</span><span class="ff">fires on 2.96% of tokens</span></div><div class="cxs"><div class="cx"><span class="cxpre">… remains;
+The cruelty and envy of</span><span class="cxtok"> the</span><span class="cxa">6.7</span></div><div class="cx"><span class="cxpre">… Paul&#x27;s.
+And mark how well</span><span class="cxtok"> the</span><span class="cxa">6.6</span></div><div class="cx"><span class="cxpre">… tale again,
+&#x27;Thus saith</span><span class="cxtok"> the</span><span class="cxa">6.2</span></div><div class="cx"><span class="cxpre">…twas never my desire yet to trouble</span><span class="cxtok"> the</span><span class="cxa">6.2</span></div><div class="cx"><span class="cxpre">… eyes of the ignorant
+More learned than</span><span class="cxtok"> the</span><span class="cxa">6.1</span></div><div class="cx"><span class="cxpre">… if they did complain,
+What could</span><span class="cxtok"> the</span><span class="cxa">6.1</span></div></div></div><div class="fcard"><div class="fh"><span class="fid">feature #4032</span><span class="fl">The word “my”</span><span class="ff">fires on 3.05% of tokens</span></div><div class="cxs"><div class="cx"><span class="cxpre">… my very wishes
+And the buildings of</span><span class="cxtok"> my</span><span class="cxa">10.3</span></div><div class="cx"><span class="cxpre">… and wonder,
+When one but of</span><span class="cxtok"> my</span><span class="cxa">10.2</span></div><div class="cx"><span class="cxpre">… Coriolanus: guess, but by</span><span class="cxtok"> my</span><span class="cxa">9.9</span></div><div class="cx"><span class="cxpre">… to Burgundy;
+And, in</span><span class="cxtok"> my</span><span class="cxa">9.9</span></div><div class="cx"><span class="cxpre">… numb cold night?
+All this from</span><span class="cxtok"> my</span><span class="cxa">9.8</span></div><div class="cx"><span class="cxpre">… verge
+Of golden metal that must round</span><span class="cxtok"> my</span><span class="cxa">9.7</span></div></div></div><div class="fcard"><div class="fh"><span class="fid">feature #1585</span><span class="fl">The word “you”</span><span class="ff">fires on 2.78% of tokens</span></div><div class="cxs"><div class="cx"><span class="cxpre">…
+Now, this no more dishonours</span><span class="cxtok"> you</span><span class="cxa">6.8</span></div><div class="cx"><span class="cxpre">… calamity
+Thither where more attends</span><span class="cxtok"> you</span><span class="cxa">6.3</span></div><div class="cx"><span class="cxpre">…ated captives to some nation
+That won</span><span class="cxtok"> you</span><span class="cxa">5.5</span></div><div class="cx"><span class="cxpre">…,
+Still your own foes, deliver</span><span class="cxtok"> you</span><span class="cxa">5.5</span></div><div class="cx"><span class="cxpre">… nodding of their plumes,
+Fan</span><span class="cxtok"> you</span><span class="cxa">5.3</span></div><div class="cx"><span class="cxpre">… blows! Despising,
+For</span><span class="cxtok"> you</span><span class="cxa">5.2</span></div></div></div><div class="fcard"><div class="fh"><span class="fid">feature #1357</span><span class="fl">The word “not”</span><span class="ff">fires on 1.60% of tokens</span></div><div class="cxs"><div class="cx"><span class="cxpre">… mean for your particular,--you had</span><span class="cxtok"> not</span><span class="cxa">10.3</span></div><div class="cx"><span class="cxpre">…OUCESTER:
+Yet had</span><span class="cxtok"> not</span><span class="cxa">10.0</span></div><div class="cx"><span class="cxpre">… your dispositions, if
+You had</span><span class="cxtok"> not</span><span class="cxa">9.5</span></div><div class="cx"><span class="cxpre">…
+BUCKINGHAM:
+Had</span><span class="cxtok"> not</span><span class="cxa">9.3</span></div><div class="cx"><span class="cxpre">…He was not taken well; he had</span><span class="cxtok"> not</span><span class="cxa">8.9</span></div><div class="cx"><span class="cxpre">…
+They lie in view; but have</span><span class="cxtok"> not</span><span class="cxa">8.9</span></div></div></div></div>
+  <div class="mini">Each is one of the 4,096 learned features — a direct read of the contexts that most activate it, nothing hand-edited.</div>
+</section>
+
+<section>
+  <div class="eye">The contrast — why we needed the dictionary</div>
+  <p class="claim">Compare all that to reading the model's numbers <em>raw</em>. Pick any single one of the 768 residual coordinates and its strongest words are an incoherent grab-bag:</p>
+  <div class="fcard raw"><div class="fh"><span class="fid">raw dimension #100</span><span class="ff">just one of the 768 coordinates</span></div><div class="cxs"><div class="cx"><span class="cxpre">…
+And that so lamely and unf</span><span class="cxtok">ashion</span><span class="cxa">4.1</span></div><div class="cx"><span class="cxpre">…
+I know so. But, gentle</span><span class="cxtok"> Lady</span><span class="cxa">3.7</span></div><div class="cx"><span class="cxpre">… him here; but if she be ob</span><span class="cxtok">d</span><span class="cxa">3.6</span></div><div class="cx"><span class="cxpre">…ETH:
+To make an act of</span><span class="cxtok"> tragic</span><span class="cxa">3.5</span></div><div class="cx"><span class="cxpre">…Let them go on;
+This mut</span><span class="cxtok">iny</span><span class="cxa">3.5</span></div><div class="cx"><span class="cxpre">…Lord Mayor:
+Now, fair be</span><span class="cxtok">fall</span><span class="cxa">3.4</span></div></div></div><div class="fcard raw"><div class="fh"><span class="fid">raw dimension #300</span><span class="ff">just one of the 768 coordinates</span></div><div class="cxs"><div class="cx"><span class="cxpre">… fair promotions
+Are daily given to en</span><span class="cxtok">nob</span><span class="cxa">4.5</span></div><div class="cx"><span class="cxpre">… kindred of the queen, must die at</span><span class="cxtok"> Pom</span><span class="cxa">4.2</span></div><div class="cx"><span class="cxpre">…OLANUS! Bear
+The addition</span><span class="cxtok"> nob</span><span class="cxa">4.2</span></div><div class="cx"><span class="cxpre">…cius, I had rather had eleven die</span><span class="cxtok"> nob</span><span class="cxa">4.1</span></div><div class="cx"><span class="cxpre">… of thy posterity.
+
+VOL</span><span class="cxtok">UM</span><span class="cxa">4.1</span></div><div class="cx"><span class="cxpre">… gods grant them true!
+
+VOL</span><span class="cxtok">UM</span><span class="cxa">4.1</span></div></div></div><div class="fcard raw"><div class="fh"><span class="fid">raw dimension #500</span><span class="ff">just one of the 768 coordinates</span></div><div class="cxs"><div class="cx"><span class="cxpre">… out one fire; one nail, one</span><span class="cxtok"> nail</span><span class="cxa">4.9</span></div><div class="cx"><span class="cxpre">…s
+Namely, to Hastings,</span><span class="cxtok"> Derby</span><span class="cxa">4.3</span></div><div class="cx"><span class="cxpre">… for the rich men only: with these</span><span class="cxtok"> shred</span><span class="cxa">4.2</span></div><div class="cx"><span class="cxpre">… there,
+You break no privilege nor</span><span class="cxtok"> charter</span><span class="cxa">4.1</span></div><div class="cx"><span class="cxpre">…ourner,
+And presently repair to</span><span class="cxtok"> Crosby</span><span class="cxa">4.1</span></div><div class="cx"><span class="cxpre">…al o&#x27; the common, you shall</span><span class="cxtok"> find</span><span class="cxa">3.9</span></div></div></div>
+  <div class="mini">These are individual dimensions of the very same activations the dictionary was trained on. Raw, they mean nothing readable; unpacked into sparse features, they come apart into nameable pieces — words, punctuation, even grammatical roles. <em>That</em> is what the dictionary buys you.</div>
+</section>
+
+<section>
+  <div class="eye">Honest caveats</div>
+  <div class="why">
+    <h3>This is a scaled-down version of the real thing</h3>
+    <p>Ours is a small dictionary (4,096 features) trained on a small amount of text (79,248 words) for a few minutes on a laptop CPU. Frontier labs train dictionaries of <em>millions</em> of features on billions of tokens. So expect rough edges: some features are still mixed, 949 slots never learned anything, and rarer concepts don't get their own feature at this scale. The lesson isn't that this dictionary is perfect — it's that the <b>method works even here</b>: sparsity genuinely pulls readable features out of a representation that was unreadable one coordinate at a time.</p>
+  </div>
+</section>
+
+<section>
+  <div class="eye">Why this matters</div>
+  <ul class="clean">
+    <li><b>It closes the loop from last time.</b> Neurons looked hopelessly polysemantic because meaning is superposed. A sparse dictionary is the way out — it recovers the separate ideas the model had packed together.</li>
+    <li><b>This is how models are actually read today.</b> The features here are the same kind of object interpretability teams use to find, name, and even steer concepts inside frontier models.</li>
+    <li><b>It's learned, not labeled.</b> No one told it “make a feature for numbers.” Under nothing but a reconstruct-with-few-active-slots pressure, nameable structure fell out on its own.</li>
+  </ul>
+</section>
+
+<section>
+  <div class="eye">Connecting it back</div>
+  <p class="aha">Experiment #3 ended on a problem — the model's neurons don't line up with human ideas. This is the resolution: change the basis. Ask for a wide vocabulary that must stay sparse, and the tangled activations of a real model separate into features you can read off one by one — recovered, provably, from GPT-2's own numbers (90% rebuilt from 32 of 4,096).</p>
+  <p class="next">Real code: <b>11-sae/sae.py</b> · real GPT-2 layer-6 residual stream, a TopK sparse autoencoder trained from scratch, every context a direct read.<br>
+  Next real-model experiment: how the same word — “bank” — <b>splits into two meanings</b> (river vs money) as it climbs the layers.</p>
+</section>
+</div>

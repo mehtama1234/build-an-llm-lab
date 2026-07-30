@@ -1,0 +1,115 @@
+<title>A guess, with odds — the model's real output</title>
+<style>
+:root{--bg:#0E1420;--bg2:#141D2C;--ink:#EAEEF4;--soft:#B4BFD0;--dim:#8493A8;--faint:#5A6577;
+--line:rgba(150,170,205,.14);--accent:#4FA8B8;--amber:#E3A63A;--rose:#C6606A;
+--serif:"Iowan Old Style",Palatino,Georgia,serif;--sans:-apple-system,system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:17px}
+.wrap{max-width:820px;margin:0 auto;padding:0 24px}
+p{color:var(--soft);margin:0 0 16px}b{color:var(--ink)}em{color:var(--ink);font-style:italic}
+.kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--serif);font-size:clamp(32px,6vw,50px);line-height:1.05;margin:14px 0 0;color:#fff;letter-spacing:-.02em}
+h2{font-family:var(--serif);font-size:27px;margin:0 0 8px;color:#fff}
+.dek{font-size:19px;color:var(--soft);margin-top:18px}
+section{padding:44px 0;border-top:1px solid var(--line)}
+.eye{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+.claim{font-family:var(--serif);font-size:21px;color:#fff;line-height:1.35;margin:0 0 4px}
+.why{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:12px;padding:16px 20px;margin:18px 0}
+.why h3{margin:0 0 6px;font-size:12.5px;font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}.why p{margin:0;font-size:15.5px;color:var(--soft)}
+.mini{font-family:var(--mono);font-size:12px;color:var(--faint);margin-top:10px}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:12px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:640px){.cols{grid-template-columns:1fr}}
+.qp{font-family:var(--serif);font-size:17px;color:#fff;margin:0 0 10px}
+.qp b{background:rgba(79,168,184,.16);border-radius:4px;padding:0 5px}
+.pb{display:flex;align-items:center;gap:9px;margin:3px 0}
+.pbt{font-family:var(--mono);font-size:12.5px;color:var(--soft);width:74px;flex:0 0 auto;text-align:right;white-space:pre;overflow:hidden;text-overflow:ellipsis}
+.pbtrack{flex:1;height:15px;background:rgba(150,170,205,.06);border-radius:4px;overflow:hidden}
+.pbfill{height:100%;border-radius:4px}
+.pbv{font-family:var(--mono);font-size:11.5px;color:var(--dim);width:44px;text-align:right}
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:10px}
+.badge b{color:var(--accent)}
+.trow{display:flex;align-items:center;gap:10px;margin:7px 0}
+.tlab{font-family:var(--mono);font-size:12.5px;color:var(--soft);width:60px;flex:0 0 auto}
+.tbar{flex:1;height:22px;display:flex;border-radius:5px;overflow:hidden;background:rgba(150,170,205,.06)}
+.seg{height:100%}
+.tent{font-family:var(--mono);font-size:11.5px;color:var(--dim);width:56px;text-align:right}
+.gen{background:#0b111b;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}
+.gen.greedy{border-color:rgba(227,166,58,.35)}
+.glab{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.gtext{font-family:var(--serif);font-size:16px;margin-top:5px;line-height:1.5}
+.gpr{color:var(--dim)}.gco{color:#fff}
+.gen.greedy .gco{color:var(--amber)}
+.aha{font-family:var(--serif);font-size:22px;line-height:1.42;color:#fff;border-left:3px solid var(--accent);padding-left:18px;margin:8px 0}
+.next{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:12px}
+ul.clean{list-style:none;padding:0;margin:16px 0}
+ul.clean li{position:relative;padding:10px 0 10px 26px;border-top:1px solid var(--line);color:var(--soft)}
+ul.clean li:before{content:"→";position:absolute;left:0;color:var(--accent);font-family:var(--mono)}ul.clean li b{color:#fff}
+.leg{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;margin-top:10px;color:var(--dim)}
+.leg i{display:inline-block;width:14px;height:10px;border-radius:3px;vertical-align:middle;margin-right:6px}
+</style>
+<div class="wrap">
+<nav style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;padding:14px 0;border-bottom:1px solid rgba(150,170,205,.16);margin-bottom:4px"><a href="index.html" style="color:#4FA8B8;text-decoration:none;font-weight:700">🔤 The Lab</a><span style="color:#5A6577">· Real-model experiments · A guess, with odds</span></nav>
+<header style="padding:64px 0 8px">
+  <div class="kick">Build-an-LLM · Lab · Real-model experiments · #6</div>
+  <h1>A guess, with odds.</h1>
+  <p class="dek">We've followed a word all the way through the model. Here's what actually comes out the other end: <b>not a word — a probability for every one of the ~50,000 possible next tokens.</b> Everything you've heard about “creativity,” “randomness,” and “temperature” is just what you do with that one list of odds. Let's read the real one out of GPT-2.</p>
+</header>
+
+<section>
+  <div class="eye">Experiment A — the output is a distribution, and its sharpness is confidence</div>
+  <p class="claim">Give the model a sentence with only one sensible ending and it stakes almost everything on one token. Give it an open one and it spreads its bet across thousands.</p>
+  <div class="cols">
+    <div class="card">
+      <p class="qp">“Thank you very <b>__</b>”</p>
+      <div class="pb"><span class="pbt"> much</span><div class="pbtrack"><div class="pbfill" style="width:100.0%;background:var(--accent)"></div></div><span class="pbv">99.2%</span></div><div class="pb"><span class="pbt"> very</span><div class="pbtrack"><div class="pbfill" style="width:0.3%;background:var(--accent)"></div></div><span class="pbv">0.2%</span></div><div class="pb"><span class="pbt">,</span><div class="pbtrack"><div class="pbfill" style="width:0.3%;background:var(--accent)"></div></div><span class="pbv">0.2%</span></div><div class="pb"><span class="pbt">much</span><div class="pbtrack"><div class="pbfill" style="width:0.1%;background:var(--accent)"></div></div><span class="pbv">0.1%</span></div><div class="pb"><span class="pbt"> Much</span><div class="pbtrack"><div class="pbfill" style="width:0.0%;background:var(--accent)"></div></div><span class="pbv">0.0%</span></div><div class="pb"><span class="pbt"> well</span><div class="pbtrack"><div class="pbfill" style="width:0.0%;background:var(--accent)"></div></div><span class="pbv">0.0%</span></div><div class="pb"><span class="pbt"> highly</span><div class="pbtrack"><div class="pbfill" style="width:0.0%;background:var(--accent)"></div></div><span class="pbv">0.0%</span></div><div class="pb"><span class="pbt"> greatly</span><div class="pbtrack"><div class="pbfill" style="width:0.0%;background:var(--accent)"></div></div><span class="pbv">0.0%</span></div>
+      <div class="badge">uncertainty: <b>0.1 bits</b> · to cover 90% of the odds you need just <b>1 token</b></div>
+    </div>
+    <div class="card">
+      <p class="qp">“I opened the door and saw a <b>__</b>”</p>
+      <div class="pb"><span class="pbt"> man</span><div class="pbtrack"><div class="pbfill" style="width:13.5%;background:var(--accent)"></div></div><span class="pbv">13.4%</span></div><div class="pb"><span class="pbt"> woman</span><div class="pbtrack"><div class="pbfill" style="width:4.7%;background:var(--accent)"></div></div><span class="pbv">4.6%</span></div><div class="pb"><span class="pbt"> young</span><div class="pbtrack"><div class="pbfill" style="width:4.3%;background:var(--accent)"></div></div><span class="pbv">4.3%</span></div><div class="pb"><span class="pbt"> large</span><div class="pbtrack"><div class="pbfill" style="width:3.1%;background:var(--accent)"></div></div><span class="pbv">3.1%</span></div><div class="pb"><span class="pbt"> group</span><div class="pbtrack"><div class="pbfill" style="width:2.1%;background:var(--accent)"></div></div><span class="pbv">2.1%</span></div><div class="pb"><span class="pbt"> huge</span><div class="pbtrack"><div class="pbfill" style="width:2.1%;background:var(--accent)"></div></div><span class="pbv">2.1%</span></div><div class="pb"><span class="pbt"> black</span><div class="pbtrack"><div class="pbfill" style="width:1.9%;background:var(--accent)"></div></div><span class="pbv">1.9%</span></div><div class="pb"><span class="pbt"> white</span><div class="pbtrack"><div class="pbfill" style="width:1.5%;background:var(--accent)"></div></div><span class="pbv">1.5%</span></div>
+      <div class="badge">uncertainty: <b>8.6 bits</b> · to cover 90% of the odds you need <b>1,559 tokens</b></div>
+    </div>
+  </div>
+  <div class="mini">Both charts are on the same scale. Left: “much” takes <b>99%</b> — the model has no real choice. Right: the tallest option (“man”) is only 13%, and the rest dribbles off across thousands of words. That number — how spread out the odds are — <em>is</em> the model's confidence, and it's different at every single word it writes.</div>
+</section>
+
+<section>
+  <div class="eye">Experiment B — temperature is one knob that reshapes the odds</div>
+  <p class="claim">Before picking, you can divide every score by a “temperature” <em>T</em>. Below 1 sharpens the odds toward the favorite; above 1 flattens them toward a coin-flip. Same model, same sentence — only the knob changes.</p>
+  <div class="card"><div class="trow"><span class="tlab">T = 0.5</span><div class="tbar"><div class="seg" style="width:68.67%;background:#4FA8B8" title=" man 68.7%"></div><div class="seg" style="width:8.22%;background:#5Fb2c0" title=" woman 8.2%"></div><div class="seg" style="width:6.98%;background:#6fbdca" title=" young 7.0%"></div><div class="seg" style="width:3.74%;background:#7fc6d2" title=" large 3.7%"></div><div class="seg" style="width:1.73%;background:#8fd0dc" title=" group 1.7%"></div><div class="seg" style="width:1.66%;background:#a3d9e3" title=" huge 1.7%"></div><div class="seg" style="width:1.34%;background:#b8e3ea" title=" black 1.3%"></div><div class="seg" style="width:0.86%;background:#cdedf1" title=" white 0.9%"></div><div class="seg" style="width:6.80%;background:rgba(150,170,205,.10)" title="the other ~50,000 tokens"></div></div><span class="tent">2.1 bits</span></div><div class="trow"><span class="tlab">T = 1.0</span><div class="tbar"><div class="seg" style="width:13.37%;background:#4FA8B8" title=" man 13.4%"></div><div class="seg" style="width:4.62%;background:#5Fb2c0" title=" woman 4.6%"></div><div class="seg" style="width:4.26%;background:#6fbdca" title=" young 4.3%"></div><div class="seg" style="width:3.12%;background:#7fc6d2" title=" large 3.1%"></div><div class="seg" style="width:2.12%;background:#8fd0dc" title=" group 2.1%"></div><div class="seg" style="width:2.08%;background:#a3d9e3" title=" huge 2.1%"></div><div class="seg" style="width:1.87%;background:#b8e3ea" title=" black 1.9%"></div><div class="seg" style="width:1.50%;background:#cdedf1" title=" white 1.5%"></div><div class="seg" style="width:67.06%;background:rgba(150,170,205,.10)" title="the other ~50,000 tokens"></div></div><span class="tent">8.6 bits</span></div><div class="trow"><span class="tlab">T = 1.5</span><div class="tbar"><div class="seg" style="width:2.18%;background:#4FA8B8" title=" man 2.2%"></div><div class="seg" style="width:1.07%;background:#5Fb2c0" title=" woman 1.1%"></div><div class="seg" style="width:1.02%;background:#6fbdca" title=" young 1.0%"></div><div class="seg" style="width:0.83%;background:#7fc6d2" title=" large 0.8%"></div><div class="seg" style="width:0.64%;background:#8fd0dc" title=" group 0.6%"></div><div class="seg" style="width:0.63%;background:#a3d9e3" title=" huge 0.6%"></div><div class="seg" style="width:0.59%;background:#b8e3ea" title=" black 0.6%"></div><div class="seg" style="width:0.51%;background:#cdedf1" title=" white 0.5%"></div><div class="seg" style="width:92.53%;background:rgba(150,170,205,.10)" title="the other ~50,000 tokens"></div></div><span class="tent">12.3 bits</span></div>
+    <div class="leg"><span><i style="background:#4FA8B8"></i>the 8 most likely words</span><span><i style="background:rgba(150,170,205,.25)"></i>everything else (~50,000 tokens)</span></div>
+    <div class="mini">On “…saw a __”. At <b>T=0.5</b> the blue (the top words) swells — “man” alone jumps to 69% and the outcome is nearly fixed. At <b>T=1.5</b> the blue shrinks to almost nothing — the odds flatten and the model will happily pick something far down the list. Temperature literally trades <em>safe</em> for <em>surprising</em>.</div>
+  </div>
+</section>
+
+<section>
+  <div class="eye">Experiment C — how a word actually gets picked</div>
+  <p class="claim">You still have to choose one token. The two extremes: always take the favorite (greedy), or roll the weighted dice (sampling). Watch what each does.</p>
+  <p><b>Greedy</b> — always the single most likely token. Safe, and it falls into loops:</p>
+  <div class="gen greedy"><span class="glab">greedy · always the top token</span><div class="gtext"><span class="gpr">The old house at the end of the street was</span><span class="gco"> a little bit of a mess. The old house was a little bit</span></div></div>
+  <p style="margin-top:14px"><b>Sampling</b> — draw from the odds (here keeping the smallest set of top tokens that add up to 90% of the mass, so the junk tail is cut). Same prompt, three runs, three different stories:</p>
+  <div class="gen "><span class="glab">sample 1 · rolled the dice (T=0.9, top-90%)</span><div class="gtext"><span class="gpr">The old house at the end of the street was</span><span class="gco"> a complete wreck. We didn&#x27;t know how to fix it or if</span></div></div><div class="gen "><span class="glab">sample 2 · rolled the dice (T=0.9, top-90%)</span><div class="gtext"><span class="gpr">The old house at the end of the street was</span><span class="gco"> the house I had moved to from Nepal a few years ago, but</span></div></div><div class="gen "><span class="glab">sample 3 · rolled the dice (T=0.9, top-90%)</span><div class="gtext"><span class="gpr">The old house at the end of the street was</span><span class="gco"> a very big building, even though it was completely abandoned. I remember</span></div></div>
+  <div class="mini">Greedy circles back on itself (“a little bit of a mess… a little bit”) because the safest next word, every time, tends to repeat. Sampling stays lively — but it can only stay <em>sensible</em> because we first threw away the long tail of bad options (that's what “top-p” / nucleus does). This is the real dial behind “make the AI more creative.”</div>
+</section>
+
+<section>
+  <div class="eye">Why this matters</div>
+  <div class="why">
+    <h3>Everything the model “decides” happens here</h3>
+    <p>The network's job ends at one probability distribution over the vocabulary. It never “chooses” a word — <em>you</em> do, with a sampling rule. Confidence, creativity, repetition, randomness, “temperature” — none of it is mysterious once you see the odds: they're all just different ways of reading and trimming this one list. The same model can be a boring parrot or a wild improviser without changing a single weight.</p>
+  </div>
+  <ul class="clean">
+    <li><b>The real output is odds, not a word.</b> A full probability over ~50,000 tokens — peaked when the answer is forced (0.1 bits), flat when it's open (8.6 bits).</li>
+    <li><b>Temperature reshapes those odds</b> before you pick — sharper (safe) or flatter (surprising), from the identical distribution.</li>
+    <li><b>The sampling rule is the personality.</b> Greedy loops; sampling with a trimmed tail stays both varied and coherent. That choice, not the weights, is “creativity.”</li>
+  </ul>
+</section>
+
+<section>
+  <div class="eye">Connecting it back — the end of the line</div>
+  <p class="aha">The very first experiment watched the guess <em>form</em> across the layers. This is the guess <em>delivered</em>: a list of odds over every word GPT-2 knows. From here it's just a roll of weighted dice — and how you weight and trim those dice is the whole difference between a model that repeats itself and one that writes something you've never seen.</p>
+  <p class="next">Real code: <b>13-nexttoken/nexttoken.py</b> · real GPT-2 output distribution, temperatures, and greedy-vs-sampled generations — every number and every sentence a direct run.<br>
+  That closes the real-model track: we've gone from a single token, up through the layers, and out into the words the model actually writes.</p>
+</section>
+</div>
